@@ -37,6 +37,7 @@ if (S.showWord) {
   word.textContent = card.word;
   word.style.fontSize = wordFontSize(card.word, S.showImage);
 }
+}
 
 function flashAdvance() {
   if (flashIdx < flashCards.length - 1) {
