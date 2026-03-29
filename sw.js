@@ -1,4 +1,4 @@
-const CACHE = 'cardbox-v1';
+const CACHE = 'cardbox-v2';
 const PRECACHE = [
   './', './index.html', './manifest.json',
   './css/styles.css',

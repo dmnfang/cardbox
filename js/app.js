@@ -122,11 +122,24 @@ function toggleDeck(book, unit, deck) {
     S.selectedDecks.splice(idx, 1);
   } else {
     S.selectedDecks.push({ bookId: book.id, unitId: unit.id, deckId: deck.id, title: deck.title, unit: unit.unit, folder: deck.folder, cards: deck.cards });
+    // Prefetch images for offline use
+    prefetchDeckImages(deck.folder, deck.cards);
   }
-  // Update card visual
   const el = document.getElementById(`dc-${book.id}-${unit.id}-${deck.id}`);
   if (el) el.classList.toggle('selected', idx < 0);
   updateModeBtns();
+}
+
+function prefetchDeckImages(folder, cards) {
+  if (!('caches' in window)) return;
+  caches.open('cardbox-v2').then(cache => {
+    cards.forEach(card => {
+      const url = getImagePath(folder, card.image);
+      fetch(url).then(res => {
+        if (res.ok) cache.put(url, res);
+      }).catch(() => {});
+    });
+  });
 }
 
 function updateModeBtns() {
