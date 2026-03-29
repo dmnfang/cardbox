@@ -27,15 +27,15 @@ function renderFlash() {
   word.style.display    = S.showWord  ? 'block' : 'none';
 
   if (S.showImage) {
-    img.src   = getImagePath(card.folder, card.image);
-    img.alt   = card.word;
-    img.onerror = () => { img.style.display = 'none'; };
-    img.onload  = () => { img.style.display = 'block'; };
-  }
-  if (S.showWord) {
-    word.textContent = card.word;
-    word.style.fontSize = wordFontSize(card.word, S.showImage);
-  }
+  img.style.display = 'none';
+  img.src = getImagePath(card.folder, card.image);
+  img.alt = card.word;
+  img.onload  = () => { img.style.display = 'block'; };
+  img.onerror = () => { img.style.display = 'none'; };
+}
+if (S.showWord) {
+  word.textContent = card.word;
+  word.style.fontSize = wordFontSize(card.word, S.showImage);
 }
 
 function flashAdvance() {
