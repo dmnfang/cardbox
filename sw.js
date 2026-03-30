@@ -14,11 +14,12 @@ const PRECACHE = [
   './assets/icons/reveal.svg',
   './assets/icons/target.svg',
   './assets/icons/vanish.svg',
-  'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap',
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(PRECACHE))
+  );
   self.skipWaiting();
 });
 
@@ -34,7 +35,11 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(res => {
-        if (e.request.url.includes('/assets/flashcards/')) {
+        if (res.ok && (
+          e.request.url.includes('/assets/flashcards/') ||
+          e.request.url.includes('fonts.googleapis.com') ||
+          e.request.url.includes('fonts.gstatic.com')
+        )) {
           caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
         return res;
