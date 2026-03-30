@@ -130,6 +130,12 @@ function toggleDeck(book, unit, deck) {
   updateModeBtns();
 }
 
+function clearDecks() {
+  S.selectedDecks = [];
+  renderDeckGrid();
+  updateModeBtns();
+}
+
 function prefetchDeckImages(folder, cards) {
   if (!('caches' in window)) return;
   caches.open('cardbox-v2').then(cache => {
@@ -145,6 +151,8 @@ function prefetchDeckImages(folder, cards) {
 function updateModeBtns() {
   const n = S.selectedDecks.length;
   const total = getAllCards().length;
+  const clearBtn = document.getElementById('clear-btn');
+  if (clearBtn) clearBtn.classList.toggle('hidden', n === 0);
   ['flash','reveal','target','vanish'].forEach(m => {
     document.getElementById(`btn-${m}`).disabled = n === 0;
   });

@@ -120,6 +120,19 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
   font-weight: 500; color: var(--text-primary); flex-shrink: 0;
 }
 
+.book-tabs-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-shrink: 0;
+}
+
+.clear-btn {
+  height: 40px; padding: 0 16px; border-radius: var(--r-md);
+  background: var(--error-subtle); color: var(--error);
+  border: 2px solid var(--error); font-size: 16px; font-weight: 800;
+  cursor: pointer; flex-shrink: 0; white-space: nowrap;
+  font-family: var(--font-ui);
+}
+
 .book-tabs { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
 
 .book-tab {
