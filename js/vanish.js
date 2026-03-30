@@ -14,7 +14,8 @@ const V_SIZES = { '2x3':[2,3,6], '3x3':[3,3,9], '4x3':[4,3,12] };
 function initVanish() {
   vRound = 0;
   const [,,total] = V_SIZES[S.vanishGrid];
-  vPoolCards = shuffle([...S.activeCards]).slice(0, total);
+  const unique = [...new Map(S.activeCards.map(c => [c.word.toLowerCase(), c])).values()];
+  vPoolCards = shuffle(unique).slice(0, total);
   showScreen('screen-vanish');
   startVanishRound();
 }
