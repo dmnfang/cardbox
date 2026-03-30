@@ -15,7 +15,7 @@ const GRID_COLS = { '4x4':4, '6x4':6, '8x4':8, '10x4':10 };
 const GRID_ROWS = { '4x4':4, '6x4':4, '8x4':4, '10x4':4 };
 
 function initReveal() {
-  revCards = S.cardOrder === 'shuffle' ? shuffle([...S.activeCards]) : [...S.activeCards];
+  revCards = shuffle([...S.activeCards]);
   revIdx = 0;
   showScreen('screen-reveal');
   renderReveal();
