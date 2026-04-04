@@ -19,6 +19,8 @@ function initReveal() {
   revIdx = 0;
   showScreen('screen-reveal');
   buildTeamBtns('reveal-team-btns', revealTeamGuess);
+  const pauseBtn = document.getElementById('reveal-pause-btn');
+  if (pauseBtn) pauseBtn.style.display = S.teamCount > 0 ? 'none' : 'flex';
   renderReveal();
 }
 
@@ -127,10 +129,17 @@ function revealNext() {
 }
 
 function toggleRevealPause() {
-  if (S.teamCount > 0) return; // teams handle pausing
-  revPaused = !revPaused;
-  setPauseBtn(revPaused);
-  revPaused ? stopRevTimer() : startRevTimer();
+  if (S.teamCount > 0) return;
+  if (!revPaused) {
+    revPaused = true;
+    stopRevTimer();
+    setPauseBtn(true);
+    openRevealGuessModal();
+  } else {
+    revPaused = false;
+    setPauseBtn(false);
+    startRevTimer();
+  }
 }
 
 function setPauseBtn(paused) {

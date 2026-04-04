@@ -4,6 +4,7 @@
 const S = {
   activeBook: null,
   selectedDecks: [],
+  disabledCards: [], // [{folder, word}]
   teamCount: 0,
   teamScores: [],
   mode: null,
@@ -37,13 +38,17 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-function goHome() { showScreen('screen-home'); }
+function goHome() {
+  S.disabledCards = [];
+  showScreen('screen-home');
+}
 
 function exitMode() {
   hideOverlays();
   S.teamCount = 0;
   S.teamScores = [];
   S.vanishRounds = 1;
+  S.disabledCards = [];
   if (typeof stopPointTicker === 'function') stopPointTicker();
   // Reset team toggle UI
   ['rv','vn'].forEach(prefix => {
@@ -177,7 +182,10 @@ function updateModeBtns() {
 
 function getAllCards() {
   const cards = [];
-  S.selectedDecks.forEach(d => d.cards.forEach(c => cards.push({...c, folder: d.folder})));
+  S.selectedDecks.forEach(d => d.cards.forEach(c => {
+    const isDisabled = S.disabledCards.some(dc => dc.folder === d.folder && dc.word === c.word);
+    if (!isDisabled) cards.push({...c, folder: d.folder});
+  }));
   return cards;
 }
 
@@ -266,8 +274,12 @@ function openPrelaunch(mode) {
 }
 
 function renderSelectedList() {
+  const editBtn = document.getElementById('edit-cards-btn');
+  if (editBtn) editBtn.classList.toggle('hidden', S.selectedDecks.length === 0);
+  
   const list = document.getElementById('selected-list');
   list.innerHTML = '';
+  
   if (S.selectedDecks.length === 0) {
     list.innerHTML = `
       <div class="no-decks">
@@ -277,7 +289,11 @@ function renderSelectedList() {
     `;
     return;
   }
+  
   S.selectedDecks.forEach((d, i) => {
+    const activeCount = d.cards.filter(c => 
+      !S.disabledCards.some(dc => dc.folder === d.folder && dc.word === c.word)
+    ).length;
     const item = document.createElement('div');
     item.className = 'sel-item';
     item.innerHTML = `
@@ -286,10 +302,73 @@ function renderSelectedList() {
         <button class="remove-btn" onclick="removeDeck(${i})">✕</button>
       </div>
       <div class="sel-sub">${d.unit}: ${d.title}</div>
-      <div class="deck-chip">${d.cards.length} cards</div>
+      <div class="deck-chip">${activeCount} cards</div>
     `;
     list.appendChild(item);
   });
+}
+
+let _editCardsTemp = [];
+
+function openEditCards() {
+  _editCardsTemp = [...S.disabledCards];
+  buildEditCardsGrid();
+  document.getElementById('edit-cards-overlay').classList.remove('hidden');
+}
+
+function buildEditCardsGrid() {
+  const body = document.getElementById('edit-cards-body');
+  body.innerHTML = '';
+  S.selectedDecks.forEach(d => {
+    const title = document.createElement('div');
+    title.className = 'edit-cards-deck-title';
+    title.textContent = d.title;
+    body.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'edit-cards-grid';
+    d.cards.forEach(card => {
+      const disabled = _editCardsTemp.some(dc => dc.folder === d.folder && dc.word === card.word);
+      const tile = document.createElement('div');
+      tile.className = 'edit-card-tile' + (disabled ? ' disabled' : '');
+      tile.innerHTML = `
+        <img src="${getImagePath(d.folder, card.image)}" alt="${card.word}">
+        <div class="edit-card-tile-word">${card.word}</div>
+      `;
+      tile.onclick = () => {
+        const idx = _editCardsTemp.findIndex(dc => dc.folder === d.folder && dc.word === card.word);
+        if (idx >= 0) {
+          _editCardsTemp.splice(idx, 1);
+          tile.classList.remove('disabled');
+        } else {
+          _editCardsTemp.push({ folder: d.folder, word: card.word });
+          tile.classList.add('disabled');
+        }
+        updateEditCardsCount();
+      };
+      grid.appendChild(tile);
+    });
+    body.appendChild(grid);
+  });
+  updateEditCardsCount();
+}
+
+function updateEditCardsCount() {
+  const total = getAllCards().length;
+  const active = total - _editCardsTemp.length;
+  const el = document.getElementById('edit-cards-count');
+  if (el) el.innerHTML = `<strong>${active}</strong> cards selected`;
+}
+
+function saveEditCards() {
+  S.disabledCards = [..._editCardsTemp];
+  document.getElementById('edit-cards-overlay').classList.add('hidden');
+  renderSelectedList();
+  updateLaunchBtn();
+}
+
+function cancelEditCards() {
+  _editCardsTemp = [];
+  document.getElementById('edit-cards-overlay').classList.add('hidden');
 }
 
 function removeDeck(i) {
@@ -587,6 +666,7 @@ function closeGuessModal() {
   console.log('closeGuessModal called, mode:', S.mode, 'teamCount:', S.teamCount);
   if (S.mode === 'reveal') {
     revPaused = false;
+    setPauseBtn(false);
     startRevTimer();
   }
   if (S.mode === 'vanish' && S.teamCount > 0) {
