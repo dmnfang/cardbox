@@ -18,6 +18,7 @@ function initReveal() {
   revCards = shuffle([...S.activeCards]);
   revIdx = 0;
   showScreen('screen-reveal');
+  buildTeamBtns('reveal-team-btns', revealTeamGuess);
   renderReveal();
 }
 
@@ -126,20 +127,16 @@ function revealNext() {
 }
 
 function toggleRevealPause() {
-  if (!revPaused) {
-    revPaused = true;
-    stopRevTimer();
-    setPauseBtn(true);
-    openRevealGuessModal();
-  } else {
-    revPaused = false;
-    setPauseBtn(false);
-    startRevTimer();
-  }
+  if (S.teamCount > 0) return; // teams handle pausing
+  revPaused = !revPaused;
+  setPauseBtn(revPaused);
+  revPaused ? stopRevTimer() : startRevTimer();
 }
 
 function setPauseBtn(paused) {
-  document.getElementById('pause-svg').innerHTML = paused
+  const pauseSvg = document.getElementById('pause-svg');
+  if (!pauseSvg) return;
+  pauseSvg.innerHTML = paused
     ? `<polygon points="4,2 14,9 4,16" fill="currentColor"/>`
     : `<rect x="4" y="3" width="3" height="12" rx="1" fill="currentColor"/><rect x="11" y="3" width="3" height="12" rx="1" fill="currentColor"/>`;
 }
@@ -147,9 +144,9 @@ function setPauseBtn(paused) {
 let revWrong = [];
 
 function openRevealGuessModal() {
-  document.getElementById('guess-title').textContent = 'What is the card?';
   document.getElementById('guess-input').value = '';
   document.getElementById('guess-submit').style.background = 'var(--reveal)';
+  document.getElementById('guess-title').textContent = 'What is the card?';
   renderRevealWrongChips();
   document.getElementById('guess-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('guess-input').focus(), 80);
@@ -159,7 +156,7 @@ function closeRevealGuessModal() {
   document.getElementById('guess-modal').classList.add('hidden');
 }
 
-function submitRevealGuess() {
+function submitRevealGuess(teamIdx) {
   const input = document.getElementById('guess-input');
   const guess = input.value.trim();
   if (!guess) return;
@@ -170,9 +167,26 @@ function submitRevealGuess() {
   if (correct) {
     input.value = '';
     revWrong = [];
-    closeRevealGuessModal();
+    closeGuessModal();
+    // Award points based on tiles remaining
+    const remaining = document.querySelectorAll('.reveal-sq:not(.gone)').length;
+    const points = Math.max(10, remaining * 10);
+    const team = window._revealGuessingTeam;
+    if (team !== undefined && S.teamCount > 0) {
+      S.teamScores[team] += points;
+      updateTeamScore('reveal-team-btns', team);
+      // Highlight team button
+      const btn = document.getElementById(`reveal-team-btns-t${team}`);
+      if (btn) {
+        btn.classList.add('correct-reveal');
+        setTimeout(() => btn.classList.remove('correct-reveal'), 1500);
+      }
+    }
     revealAction();
     spawnRevealConfetti();
+    // Auto resume
+    revPaused = false;
+    startRevTimer();
   } else {
     input.value = '';
     revWrong.push(guess);
@@ -205,4 +219,11 @@ function spawnRevealConfetti() {
     container.appendChild(p);
   }
   setTimeout(() => container.remove(), 2000);
+}
+
+function revealTeamGuess(teamIdx) {
+  stopRevTimer();
+  revPaused = true;
+  openRevealGuessModal();
+  window._revealGuessingTeam = teamIdx;
 }

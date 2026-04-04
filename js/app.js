@@ -3,7 +3,9 @@
 // ══════════════════════════════════════════════
 const S = {
   activeBook: null,
-  selectedDecks: [],   // {bookId,unitId,deckId,title,unit,folder,cards}
+  selectedDecks: [],
+  teamCount: 0,
+  teamScores: [],
   mode: null,
   showImage: true,
   showWord: true,
@@ -11,10 +13,10 @@ const S = {
   revealContent: 'image',
   revealGrid: '4x4',
   revealSpeed: 1,
-  targetWords: [],     // {word,image,folder}
+  targetWords: [],
   vanishGrid: '2x3',
   vanishRounds: 1,
-  activeCards: [],     // {word,image,folder}
+  activeCards: [],
 };
 
 // ══════════════════════════════════════════════
@@ -39,6 +41,20 @@ function goHome() { showScreen('screen-home'); }
 
 function exitMode() {
   hideOverlays();
+  S.teamCount = 0;
+  S.teamScores = [];
+  S.vanishRounds = 1;
+  if (typeof stopPointTicker === 'function') stopPointTicker();
+  // Reset team toggle UI
+  ['rv','vn'].forEach(prefix => {
+    [0,2,3,4].forEach(v => {
+      document.getElementById(`${prefix}-${v}`)?.classList.toggle('active', v === 0);
+    });
+  });
+  // Reset vanish rounds UI
+  [1,2,3,4,5].forEach(v => {
+    document.getElementById(`vr-${v}`)?.classList.toggle('active', v === 1);
+  });
   showScreen('screen-home');
 }
 
@@ -122,7 +138,6 @@ function toggleDeck(book, unit, deck) {
     S.selectedDecks.splice(idx, 1);
   } else {
     S.selectedDecks.push({ bookId: book.id, unitId: unit.id, deckId: deck.id, title: deck.title, unit: unit.unit, folder: deck.folder, cards: deck.cards });
-    // Prefetch images for offline use
     prefetchDeckImages(deck.folder, deck.cards);
   }
   const el = document.getElementById(`dc-${book.id}-${unit.id}-${deck.id}`);
@@ -150,7 +165,6 @@ function prefetchDeckImages(folder, cards) {
 
 function updateModeBtns() {
   const n = S.selectedDecks.length;
-  const total = getAllCards().length;
   const clearBtn = document.getElementById('clear-btn');
   if (clearBtn) clearBtn.classList.toggle('hidden', n === 0);
   ['flash','reveal','target','vanish'].forEach(m => {
@@ -192,19 +206,30 @@ const modeIconColors = {
 };
 
 function openPrelaunch(mode) {
+  const prevMode = S.mode;
   S.mode = mode;
+
+  // Reset teams only when switching modes
+  if (prevMode !== mode) {
+    S.teamCount = 0;
+    S.teamScores = [];
+    ['rv','vn'].forEach(prefix => {
+      [0,2,3,4].forEach(v => {
+        document.getElementById(`${prefix}-${v}`)?.classList.toggle('active', v === 0);
+      });
+    });
+  }
+
   const iconContainer = document.getElementById('prelaunch-icon');
-iconContainer.outerHTML = `<span id="prelaunch-icon" style="color:${modeIconColors[mode]};display:flex;align-items:center;">${modeSVGs[mode]}</span>`;
+  iconContainer.outerHTML = `<span id="prelaunch-icon" style="color:${modeIconColors[mode]};display:flex;align-items:center;">${modeSVGs[mode]}</span>`;
   document.getElementById('prelaunch-label').textContent = MODE_LABEL[mode];
 
-  // Launch btn
   const btn = document.getElementById('launch-btn');
   btn.dataset.mode = mode;
   btn.style.background = MODE_COLOR[mode];
   document.getElementById('launch-icon').textContent = MODE_ICON[mode];
   document.getElementById('launch-label').textContent = `Launch ${MODE_LABEL[mode]}`;
 
-  // Show correct settings panel
   ['s-flash','s-reveal','s-target','s-vanish'].forEach(id => {
     const el = document.getElementById(id);
     el.classList.add('hidden');
@@ -245,24 +270,24 @@ function renderSelectedList() {
   list.innerHTML = '';
   if (S.selectedDecks.length === 0) {
     list.innerHTML = `
-  <div class="no-decks">
-    <p><strong>No decks selected</strong><br>Please go back and select some decks to use this mode</p>
-    <button class="back-home-btn" onclick="goHome()">Back to Home</button>
-  </div>
-`;
+      <div class="no-decks">
+        <p><strong>No decks selected</strong><br>Please go back and select some decks to use this mode</p>
+        <button class="back-home-btn" onclick="goHome()">Back to Home</button>
+      </div>
+    `;
     return;
   }
   S.selectedDecks.forEach((d, i) => {
     const item = document.createElement('div');
     item.className = 'sel-item';
     item.innerHTML = `
-  <div class="deck-card-header">
-    <div class="sel-title">${d.title}</div>
-    <button class="remove-btn" onclick="removeDeck(${i})">✕</button>
-  </div>
-  <div class="sel-sub">${d.unit}: ${d.title}</div>
-  <div class="deck-chip">${d.cards.length} cards</div>
-`;
+      <div class="deck-card-header">
+        <div class="sel-title">${d.title}</div>
+        <button class="remove-btn" onclick="removeDeck(${i})">✕</button>
+      </div>
+      <div class="sel-sub">${d.unit}: ${d.title}</div>
+      <div class="deck-chip">${d.cards.length} cards</div>
+    `;
     list.appendChild(item);
   });
 }
@@ -282,7 +307,6 @@ function removeDeck(i) {
 function toggleContent(type, on) {
   if (type === 'image') S.showImage = on;
   else S.showWord = on;
-  // At least one must be on
   if (!S.showImage && !S.showWord) { if (type === 'image') { S.showWord = true; } else { S.showImage = true; } }
   document.getElementById('t-img-on').classList.toggle('active', S.showImage);
   document.getElementById('t-img-off').classList.toggle('active', !S.showImage);
@@ -296,10 +320,8 @@ function updateCardPreview() {
   const sample = cards[0];
   const imgWrap = document.getElementById('prev-img-wrap');
   const word = document.getElementById('prev-word');
-
   imgWrap.style.display = S.showImage ? 'flex' : 'none';
   word.style.display = S.showWord ? 'block' : 'none';
-
   if (sample && S.showImage) {
     const img = document.getElementById('prev-img');
     img.src = getImagePath(sample.folder, sample.image);
@@ -312,13 +334,6 @@ function setOrder(o) {
   S.cardOrder = o;
   document.getElementById('t-seq').classList.toggle('active', o === 'sequential');
   document.getElementById('t-shuf').classList.toggle('active', o === 'shuffle');
-}
-
-function setRevealContent(c) {
-  S.revealContent = c;
-  document.getElementById('r-img').classList.toggle('active', c === 'image');
-  document.getElementById('r-word').classList.toggle('active', c === 'word');
-  updateRevealPreview();
 }
 
 function setGrid(g) {
@@ -351,34 +366,32 @@ function updateRevealPreview() {
   preview.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
   preview.innerHTML = '';
 
-// Load card content into preview
   const cards = getAllCards();
   const sample = cards[0];
   if (!sample) {
     const imgWrap = document.getElementById('prev-img-wrap-reveal');
     const word = document.getElementById('prev-word-reveal');
-    const preview = document.getElementById('card-preview-reveal');
     if (imgWrap) imgWrap.style.setProperty('display', 'none', 'important');
     if (word) word.style.setProperty('display', 'none', 'important');
     if (preview) preview.innerHTML = '';
     clearInterval(window._revealPreviewTimer);
     return;
   }
+
   const imgWrap = document.getElementById('prev-img-wrap-reveal');
   const word = document.getElementById('prev-word-reveal');
+  if (!imgWrap || !word) return;
 
-if (!imgWrap || !word) return;
-
-if (sample && S.revealContent === 'image') {
-  imgWrap.style.setProperty('display', 'flex', 'important');
-  word.style.setProperty('display', 'none', 'important');
-  const img = document.getElementById('prev-img-reveal');
-  img.src = getImagePath(sample.folder, sample.image);
-} else if (sample && S.revealContent === 'word') {
-  imgWrap.style.setProperty('display', 'none', 'important');
-  word.style.setProperty('display', 'flex', 'important');
-  word.textContent = sample.word;
-}
+  if (S.revealContent === 'image') {
+    imgWrap.style.setProperty('display', 'flex', 'important');
+    word.style.setProperty('display', 'none', 'important');
+    const img = document.getElementById('prev-img-reveal');
+    img.src = getImagePath(sample.folder, sample.image);
+  } else {
+    imgWrap.style.setProperty('display', 'none', 'important');
+    word.style.setProperty('display', 'flex', 'important');
+    word.textContent = sample.word;
+  }
 
   for (let i = 0; i < cols * rows; i++) {
     const sq = document.createElement('div');
@@ -478,6 +491,14 @@ function setVanishRounds(r) {
   [1,2,3,4,5].forEach(v => document.getElementById(`vr-${v}`)?.classList.toggle('active', v === r));
 }
 
+function setTeams(n, prefix) {
+  S.teamCount = n;
+  S.teamScores = Array(n).fill(0);
+  [0,2,3,4].forEach(v => {
+    document.getElementById(`${prefix}-${v}`)?.classList.toggle('active', v === n);
+  });
+}
+
 function updateVanishPreview() {
   const preview = document.getElementById('vanish-preview-grid');
   if (!preview) return;
@@ -493,7 +514,7 @@ function updateVanishPreview() {
     const cell = document.createElement('div');
     cell.className = 'vanish-pcell' + (i === ghostIdx ? ' ghost' : '');
     if (i === ghostIdx) {
-      cell.innerHTML = `<svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384C14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`;
+      cell.innerHTML = `<svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384 14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`;
     } else {
       cell.textContent = cards[i]?.word || '';
     }
@@ -558,7 +579,57 @@ function wordFontSize(word, hasImage) {
   return '40px';
 }
 
+// ══════════════════════════════════════════════
+// GUESS MODAL
+// ══════════════════════════════════════════════
+function closeGuessModal() {
+  document.getElementById('guess-modal').classList.add('hidden');
+  console.log('closeGuessModal called, mode:', S.mode, 'teamCount:', S.teamCount);
+  if (S.mode === 'reveal') {
+    revPaused = false;
+    startRevTimer();
+  }
+  if (S.mode === 'vanish' && S.teamCount > 0) {
+    console.log('restarting ticker');
+    startPointTicker(false);
+  }
+}
+
 function handleGuessSubmit() {
   if (S.mode === 'vanish') submitGuess();
-  if (S.mode === 'reveal') submitRevealGuess();
+  if (S.mode === 'reveal') submitRevealGuess(window._revealGuessingTeam);
+}
+
+// ══════════════════════════════════════════════
+// TEAM BUTTONS
+// ══════════════════════════════════════════════
+const TEAM_ICONS = [
+  `<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor" font-family="Nunito, sans-serif">1</text></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor" font-family="Nunito, sans-serif">2</text></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor" font-family="Nunito, sans-serif">3</text></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5" fill="none"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor" font-family="Nunito, sans-serif">4</text></svg>`,
+];
+
+function buildTeamBtns(containerId, onClickFn) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  if (S.teamCount === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  container.classList.remove('hidden');
+  for (let i = 0; i < S.teamCount; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'team-btn';
+    btn.id = `${containerId}-t${i}`;
+    btn.innerHTML = `${TEAM_ICONS[i]}<span>${S.teamScores[i]}</span>`;
+    btn.onclick = () => onClickFn(i);
+    container.appendChild(btn);
+  }
+}
+
+function updateTeamScore(containerId, teamIdx) {
+  const btn = document.getElementById(`${containerId}-t${teamIdx}`);
+  if (btn) btn.querySelector('span').textContent = S.teamScores[teamIdx];
 }

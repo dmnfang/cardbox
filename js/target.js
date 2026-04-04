@@ -39,6 +39,15 @@ function renderIntroCard(card) {
 
 function startTargetRound() {
   tCards = shuffle([...S.activeCards]);
+  // Move target word to after 20% of cards
+  const targetIdx = tCards.findIndex(c => c.word === tKeyword.word && c.folder === tKeyword.folder);
+  if (targetIdx !== -1) {
+    const minPos = Math.floor(tCards.length * 0.4);
+    if (targetIdx < minPos) {
+      tCards.splice(targetIdx, 1);
+      tCards.splice(minPos, 0, tKeyword);
+    }
+  }
   tCardIdx = 0; tHit = false;
 
   document.getElementById('target-intro').style.display = 'none';
