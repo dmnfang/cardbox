@@ -89,8 +89,7 @@ function buildTabs() {
 function shortName(n) {
   if (n.includes("Let's Try 1")) return "Let's Try 1";
   if (n.includes("Let's Try 2")) return "Let's Try 2";
-  if (n.includes("New Horizon Elementary 5")) return "New Horizon ES 5";
-  if (n.includes("New Horizon Elementary 6")) return "New Horizon ES 6";
+  if (n.includes("My Picture Dictionary")) return "My Picture Dictionary";
   return n;
 }
 
