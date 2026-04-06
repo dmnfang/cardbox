@@ -1215,6 +1215,12 @@
       ]}]
     },
     {
+      "id": "mpd-p10", "unit": "Page 10", "title": "Colors & Shapes",
+      "decks": [{ "id": "mpd-p9-d1", "title": "Shapes", "folder": "my-picture-dictionary/page-10/shapes", "cards": [
+        { "word": "circle", "image": "circle.png" }, { "word": "cross", "image": "cross.png" }, { "word": "diamond", "image": "diamond.png" }, { "word": "heart", "image": "heart.png" }, { "word": "rectangle", "image": "rectangle.png" }, { "word": "shapes", "image": "shapes.png" }, { "word": "square", "image": "square.png" }, { "word": "star", "image": "star.png" }, { "word": "triangle", "image": "triangle.png" }
+      ]}]
+    },
+    {
       "id": "mpd-p11", "unit": "Page 11", "title": "Sports",
       "decks": [
         { "id": "mpd-p11-d1", "title": "Sports", "folder": "my-picture-dictionary/page-11/sports", "cards": [
