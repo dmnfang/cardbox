@@ -239,6 +239,7 @@ function submitGuess() {
       }, 1000);
     } else {
       spawnVanishConfetti();
+      if (S.teamCount > 0) startPointTicker(true);
     }
   } else {
     input.value = '';
