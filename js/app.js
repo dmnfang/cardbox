@@ -290,10 +290,6 @@ function openPrelaunch(mode) {
     });
   }
 
-  const iconContainer = document.getElementById('prelaunch-icon');
-  iconContainer.outerHTML = `<span id="prelaunch-icon" style="color:${modeIconColors[mode]};display:flex;align-items:center;">${modeSVGs[mode]}</span>`;
-  document.getElementById('prelaunch-label').textContent = MODE_LABEL[mode];
-
   const btn = document.getElementById('launch-btn');
   btn.dataset.mode = mode;
   btn.style.background = MODE_COLOR[mode];
