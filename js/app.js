@@ -212,6 +212,69 @@ const modeIconColors = {
   flash: '#F0C040', reveal: '#6AB4E8', target: '#F08080', vanish: '#80C8A0'
 };
 
+function switchMode(mode) {
+  if (mode === S.mode) return;
+  const prevMode = S.mode;
+  S.mode = mode;
+
+  // Reset teams only when moving to/from modes that don't support teams
+  const teamModes = ['reveal', 'vanish'];
+  if (!teamModes.includes(mode)) {
+    S.teamCount = 0;
+    S.teamScores = [];
+    ['rv','vn'].forEach(prefix => {
+      [0,2,3,4].forEach(v => document.getElementById(`${prefix}-${v}`)?.classList.toggle('active', v === 0));
+    });
+  }
+
+  // Update launch button color
+  const btn = document.getElementById('launch-btn');
+  btn.style.background = MODE_COLOR[mode];
+  document.getElementById('launch-icon').textContent = MODE_ICON[mode];
+  document.getElementById('launch-label').textContent = `Launch ${MODE_LABEL[mode]}`;
+  btn.dataset.mode = mode;
+
+  // Swap settings panels
+  ['s-flash','s-reveal','s-target','s-vanish'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.add('hidden');
+    el.style.display = '';
+  });
+
+  if (mode === 'flash') {
+    const el = document.getElementById('s-flash');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
+    updateCardPreview();
+  } else if (mode === 'reveal') {
+    const el = document.getElementById('s-reveal');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
+    updateRevealPreview();
+  } else if (mode === 'target') {
+    const el = document.getElementById('s-target');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:12px;flex:1;min-height:0';
+    buildWordPicker();
+    updateTargetCounter();
+  } else if (mode === 'vanish') {
+    const el = document.getElementById('s-vanish');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
+    updateVanishPreview();
+    updateVanishGridBtns();
+  }
+
+  updateModeTogglePills();
+  updateLaunchBtn();
+}
+
+function updateModeTogglePills() {
+  ['flash','reveal','target','vanish'].forEach(m => {
+    document.getElementById(`mtoggle-${m}`)?.classList.toggle('active', m === S.mode);
+  });
+}
+
 function openPrelaunch(mode) {
   const prevMode = S.mode;
   S.mode = mode;
@@ -267,6 +330,7 @@ function openPrelaunch(mode) {
     updateVanishGridBtns();
   }
 
+  updateModeTogglePills();
   renderSelectedList();
   updateLaunchBtn();
   showScreen('screen-prelaunch');
