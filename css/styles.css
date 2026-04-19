@@ -248,7 +248,7 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 }
 
 .mode-toggle-group { display: flex; align-items: center; gap: 16px; flex: 1; justify-content: center; }
-.mode-toggle-pill { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 9999px; background: var(--surface-panel); color: var(--text-primary); font-family: var(--font-ui); font-size: 18px; font-weight: 700; line-height: 24px; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+.mode-toggle-pill { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 9999px; background: var(--surface-panel); color: var(--text-primary); font-family: var(--font-ui); font-size: 18px; font-weight: 700; line-height: 24px; white-space: nowrap; transition: background 0.15s, color 0.15s; }
 .mode-toggle-pill.active { background: var(--text-primary); color: var(--text-inverse); }
 
 .prelaunch-mode-icon { width: 32px; height: 32px; }
