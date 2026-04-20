@@ -18,6 +18,8 @@ const S = {
   vanishGrid: '2x3',
   vanishRounds: 1,
   activeCards: [],
+  rollTeams: 2,
+  rollGrid: '4x4',
 };
 
 // ══════════════════════════════════════════════
@@ -171,7 +173,7 @@ function updateModeBtns() {
   const n = S.selectedDecks.length;
   const clearBtn = document.getElementById('clear-btn');
   if (clearBtn) clearBtn.classList.toggle('hidden', n === 0);
-  ['flash','reveal','target','vanish'].forEach(m => {
+  ['flash','reveal','target','vanish','roll'].forEach(m => {
     document.getElementById(`btn-${m}`).disabled = n === 0;
   });
   const st = document.getElementById('modes-status');
@@ -197,19 +199,20 @@ function shuffle(arr) {
 // ══════════════════════════════════════════════
 // PRE-LAUNCH
 // ══════════════════════════════════════════════
-const MODE_COLOR = { flash:'var(--flash)', reveal:'var(--reveal)', target:'var(--target)', vanish:'var(--vanish)' };
-const MODE_ICON  = { flash:'⚡', reveal:'👁', target:'🎯', vanish:'👻' };
-const MODE_LABEL = { flash:'Flash', reveal:'Reveal', target:'Target', vanish:'Vanish' };
+const MODE_COLOR = { flash:'var(--flash)', reveal:'var(--reveal)', target:'var(--target)', vanish:'var(--vanish)', roll:'var(--roll)' };
+const MODE_ICON  = { flash:'⚡', reveal:'👁', target:'🎯', vanish:'👻', roll:'🎲' };
+const MODE_LABEL = { flash:'Flash', reveal:'Reveal', target:'Target', vanish:'Vanish', roll:'Roll' };
 
 const modeSVGs = {
   flash:  `<svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.3004 1.04602C11.5035 1.10986 11.6808 1.2368 11.8067 1.40837C11.9326 1.57995 12.0005 1.78721 12.0004 2.00002V7.00002H16.0004C16.1834 6.99994 16.3628 7.05003 16.5192 7.14484C16.6757 7.23965 16.8031 7.37556 16.8876 7.53776C16.9722 7.69996 17.0106 7.88225 16.9988 8.06478C16.9869 8.24732 16.9253 8.4231 16.8204 8.57302L9.82044 18.573C9.69862 18.7476 9.52428 18.8787 9.32278 18.9473C9.12129 19.0159 8.90317 19.0184 8.70014 18.9545C8.49711 18.8906 8.31978 18.7635 8.19394 18.5919C8.06809 18.4202 8.00031 18.2129 8.00044 18V13H4.00045C3.81753 13.0001 3.63809 12.95 3.48166 12.8552C3.32524 12.7604 3.19781 12.6245 3.11325 12.4623C3.0287 12.3001 2.99025 12.1178 3.0021 11.9353C3.01395 11.7527 3.07563 11.5769 3.18045 11.427L10.1804 1.42702C10.3025 1.2528 10.4768 1.12203 10.6782 1.05369C10.8797 0.985356 11.0976 0.983018 11.3004 1.04702" fill="currentColor"/></svg>`,
   reveal: `<svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.0007 7.5C9.33761 7.5 8.70172 7.76339 8.23288 8.23223C7.76404 8.70107 7.50065 9.33696 7.50065 10C7.50065 10.663 7.76404 11.2989 8.23288 11.7678C8.70172 12.2366 9.33761 12.5 10.0007 12.5C10.6637 12.5 11.2996 12.2366 11.7684 11.7678C12.2373 11.2989 12.5007 10.663 12.5007 10C12.5007 9.33696 12.2373 8.70107 11.7684 8.23223C11.2996 7.76339 10.6637 7.5 10.0007 7.5ZM10.0007 14.1667C8.89558 14.1667 7.83577 13.7277 7.05437 12.9463C6.27297 12.1649 5.83398 11.1051 5.83398 10C5.83398 8.89493 6.27297 7.83512 7.05437 7.05372C7.83577 6.27232 8.89558 5.83333 10.0007 5.83333C11.1057 5.83333 12.1655 6.27232 12.9469 7.05372C13.7283 7.83512 14.1673 8.89493 14.1673 10C14.1673 11.1051 13.7283 12.1649 12.9469 12.9463C12.1655 13.7277 11.1057 14.1667 10.0007 14.1667ZM10.0007 3.75C5.83398 3.75 2.27565 6.34167 0.833984 10C2.27565 13.6583 5.83398 16.25 10.0007 16.25C14.1673 16.25 17.7256 13.6583 19.1673 10C17.7256 6.34167 14.1673 3.75 10.0007 3.75Z" fill="currentColor"/></svg>`,
   target: `<svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 12.5C10.663 12.5 11.2989 12.2366 11.7678 11.7678C12.2366 11.2989 12.5 10.663 12.5 10C12.5 9.33696 12.2366 8.70107 11.7678 8.23223C11.2989 7.76339 10.663 7.5 10 7.5C9.33696 7.5 8.70107 7.76339 8.23223 8.23223C7.76339 8.70107 7.5 9.33696 7.5 10C7.5 10.663 7.76339 11.2989 8.23223 11.7678C8.70107 12.2366 9.33696 12.5 10 12.5Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.99935 18.3333C14.6018 18.3333 18.3327 14.6025 18.3327 9.99996C18.3327 5.39746 14.6018 1.66663 9.99935 1.66663C5.39685 1.66663 1.66602 5.39746 1.66602 9.99996C1.66602 14.6025 5.39685 18.3333 9.99935 18.3333ZM14.9993 9.99996C14.9993 11.326 14.4726 12.5978 13.5349 13.5355C12.5972 14.4732 11.3254 15 9.99935 15C8.67327 15 7.4015 14.4732 6.46382 13.5355C5.52613 12.5978 4.99935 11.326 4.99935 9.99996C4.99935 8.67388 5.52613 7.40211 6.46382 6.46443C7.4015 5.52674 8.67327 4.99996 9.99935 4.99996C11.3254 4.99996 12.5972 5.52674 13.5349 6.46443C14.4726 7.40211 14.9993 8.67388 14.9993 9.99996Z" fill="currentColor"/></svg>`,
-  vanish: `<svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384C14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`
+  vanish: `<svg width="32" height="32" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384C14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`,
+  roll: `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.66667 4C5.95942 4 5.28115 4.28095 4.78105 4.78105C4.28095 5.28115 4 5.95942 4 6.66667V25.3333C4 26.0406 4.28095 26.7189 4.78105 27.219C5.28115 27.719 5.95942 28 6.66667 28H25.3333C26.0406 28 26.7189 27.719 27.219 27.219C27.719 26.7189 28 26.0406 28 25.3333V6.66667C28 5.95942 27.719 5.28115 27.219 4.78105C26.7189 4.28095 26.0406 4 25.3333 4H6.66667ZM12 14C11.4696 14 10.9609 13.7893 10.5858 13.4142C10.2107 13.0391 10 12.5304 10 12C10 11.4696 10.2107 10.9609 10.5858 10.5858C10.9609 10.2107 11.4696 10 12 10C12.5304 10 13.0391 10.2107 13.4142 10.5858C13.7893 10.9609 14 11.4696 14 12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14ZM14 20C14 20.5304 13.7893 21.0391 13.4142 21.4142C13.0391 21.7893 12.5304 22 12 22C11.4696 22 10.9609 21.7893 10.5858 21.4142C10.2107 21.0391 10 20.5304 10 20C10 19.4696 10.2107 18.9609 10.5858 18.5858C10.9609 18.2107 11.4696 18 12 18C12.5304 18 13.0391 18.2107 13.4142 18.5858C13.7893 18.9609 14 19.4696 14 20ZM22 20C22 20.5304 21.7893 21.0391 21.4142 21.4142C21.0391 21.7893 20.5304 22 20 22C19.4696 22 18.9609 21.7893 18.5858 21.4142C18.2107 21.0391 18 20.5304 18 20C18 19.4696 18.2107 18.9609 18.5858 18.5858C18.9609 18.2107 19.4696 18 20 18C20.5304 18 21.0391 18.2107 21.4142 18.5858C21.7893 18.9609 22 19.4696 22 20ZM22 12C22 12.5304 21.7893 13.0391 21.4142 13.4142C21.0391 13.7893 20.5304 14 20 14C19.4696 14 18.9609 13.7893 18.5858 13.4142C18.2107 13.0391 18 12.5304 18 12C18 11.4696 18.2107 10.9609 18.5858 10.5858C18.9609 10.2107 19.4696 10 20 10C20.5304 10 21.0391 10.2107 21.4142 10.5858C21.7893 10.9609 22 11.4696 22 12Z" fill="currentColor"/></svg>`
 };
 
 const modeIconColors = {
-  flash: '#F0C040', reveal: '#6AB4E8', target: '#F08080', vanish: '#80C8A0'
+  flash: '#F0C040', reveal: '#6AB4E8', target: '#F08080', vanish: '#80C8A0', roll: '#9B7FD4'
 };
 
 function switchMode(mode) {
@@ -218,7 +221,7 @@ function switchMode(mode) {
   S.mode = mode;
 
   // Reset teams only when moving to/from modes that don't support teams
-  const teamModes = ['reveal', 'vanish'];
+  const teamModes = ['reveal', 'vanish', 'roll'];
   if (!teamModes.includes(mode)) {
     S.teamCount = 0;
     S.teamScores = [];
@@ -230,12 +233,12 @@ function switchMode(mode) {
   // Update launch button color
   const btn = document.getElementById('launch-btn');
   btn.style.background = MODE_COLOR[mode];
-  document.getElementById('launch-icon').textContent = MODE_ICON[mode];
+  document.getElementById('launch-icon').src = `assets/icons/${mode}.svg`;
   document.getElementById('launch-label').textContent = `Launch ${MODE_LABEL[mode]}`;
   btn.dataset.mode = mode;
 
   // Swap settings panels
-  ['s-flash','s-reveal','s-target','s-vanish'].forEach(id => {
+  ['s-flash','s-reveal','s-target','s-vanish','s-roll'].forEach(id => {
     const el = document.getElementById(id);
     el.classList.add('hidden');
     el.style.display = '';
@@ -263,6 +266,13 @@ function switchMode(mode) {
     el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
     updateVanishPreview();
     updateVanishGridBtns();
+  } else if (mode === 'roll') {
+    const el = document.getElementById('s-roll');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
+    S.teamCount = S.rollTeams;
+    S.teamScores = Array(S.rollTeams).fill(0);
+    updateRollPreview();
   }
 
   updateModeTogglePills();
@@ -270,7 +280,7 @@ function switchMode(mode) {
 }
 
 function updateModeTogglePills() {
-  ['flash','reveal','target','vanish'].forEach(m => {
+  ['flash','reveal','target','vanish','roll'].forEach(m => {
     document.getElementById(`mtoggle-${m}`)?.classList.toggle('active', m === S.mode);
   });
 }
@@ -293,10 +303,10 @@ function openPrelaunch(mode) {
   const btn = document.getElementById('launch-btn');
   btn.dataset.mode = mode;
   btn.style.background = MODE_COLOR[mode];
-  document.getElementById('launch-icon').textContent = MODE_ICON[mode];
+  document.getElementById('launch-icon').src = `assets/icons/${mode}.svg`;
   document.getElementById('launch-label').textContent = `Launch ${MODE_LABEL[mode]}`;
 
-  ['s-flash','s-reveal','s-target','s-vanish'].forEach(id => {
+  ['s-flash','s-reveal','s-target','s-vanish','s-roll'].forEach(id => {
     const el = document.getElementById(id);
     el.classList.add('hidden');
     el.style.display = '';
@@ -324,6 +334,13 @@ function openPrelaunch(mode) {
     el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
     updateVanishPreview();
     updateVanishGridBtns();
+  } else if (mode === 'roll') {
+    const el = document.getElementById('s-roll');
+    el.classList.remove('hidden');
+    el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
+    S.teamCount = S.rollTeams;
+    S.teamScores = Array(S.rollTeams).fill(0);
+    updateRollPreview();
   }
 
   updateModeTogglePills();
@@ -629,6 +646,44 @@ function setVanishRounds(r) {
   [1,2,3,4,5].forEach(v => document.getElementById(`vr-${v}`)?.classList.toggle('active', v === r));
 }
 
+function setRollTeams(n) {
+  S.rollTeams = n;
+  S.teamCount = n;
+  S.teamScores = Array(n).fill(0);
+  [2,3,4].forEach(v => document.getElementById(`rl-${v}`)?.classList.toggle('active', v === n));
+}
+
+function setRollGrid(g) {
+  S.rollGrid = g;
+  ['4x4','5x4','6x4'].forEach(v => document.getElementById(`rls-${v}`)?.classList.toggle('active', v === g));
+  updateRollPreview();
+}
+
+function updateRollPreview() {
+  const preview = document.getElementById('roll-preview-grid');
+  if (!preview) return;
+  const map = {'4x4':[4,4],'5x4':[5,4],'6x4':[6,4]};
+  const [cols, rows] = map[S.rollGrid] || [4,4];
+  const total = cols * rows;
+  const colors = ['var(--flash)', 'var(--reveal)', 'var(--target)', 'var(--vanish)', 'var(--roll)'];
+  preview.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  preview.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'roll-preview-cell';
+    if (i === 0) {
+      cell.style.background = 'var(--flash)';
+      cell.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="white"><polygon points="10,2 12.9,7.6 19,8.5 14.5,12.9 15.6,19 10,16 4.4,19 5.5,12.9 1,8.5 7.1,7.6"/></svg>`;
+    } else if (i === total - 1) {
+      cell.style.background = 'var(--flash)';
+      cell.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="white"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 2.5l1.5 3 3.3.5-2.4 2.3.6 3.2L10 12l-2.9 1.5.6-3.2L5.2 8l3.3-.5L10 4.5z" fill-rule="evenodd"/></svg>`;
+    } else {
+      cell.style.background = colors[i % colors.length];
+    }
+    preview.appendChild(cell);
+  }
+}
+
 function setTeams(n, prefix) {
   S.teamCount = n;
   S.teamScores = Array(n).fill(0);
@@ -679,6 +734,7 @@ function launchMode() {
   if (S.mode === 'reveal') initReveal();
   if (S.mode === 'target') initTarget();
   if (S.mode === 'vanish') initVanish();
+  if (S.mode === 'roll') initRoll();
 }
 
 // ══════════════════════════════════════════════

@@ -38,6 +38,8 @@
   --target-subtle:  #FDEAEA;
   --vanish:         #80C8A0;
   --vanish-subtle:  #E3F5EC;
+  --roll:        #9B7FD4;
+  --roll-subtle: #EDE8F7;
 
   /* Feedback */
   --success:        #4AA875;
@@ -214,6 +216,7 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
   display: flex; align-items: center; justify-content: center; gap: 8px;
   cursor: pointer; height: 80px; width: 100%;
   transition: opacity 0.15s;
+  color: var(--text-primary);
 }
 .mode-btn:disabled { cursor: not-allowed; }
 .mode-btn:not(:disabled):active { opacity: 0.8; transform: scale(0.98); }
@@ -228,12 +231,14 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 .reveal-btn { background: var(--reveal); }
 .target-btn { background: var(--target); }
 .vanish-btn { background: var(--vanish); }
+.roll-btn { background: var(--roll); }
 
 /* Disabled mode buttons */
 .flash-btn:disabled  { background: var(--flash-subtle);  opacity: 1; }
 .reveal-btn:disabled { background: var(--reveal-subtle); opacity: 1; }
 .target-btn:disabled { background: var(--target-subtle); opacity: 1; }
 .vanish-btn:disabled { background: var(--vanish-subtle); opacity: 1; }
+.roll-btn:disabled { background: var(--roll-subtle); opacity: 1; }
 .mode-btn:disabled .mode-btn-label { color: var(--text-muted); }
 .mode-btn:disabled .mode-btn-icon  { filter: opacity(0.4) saturate(0.5); }
 
@@ -457,6 +462,16 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
   display: flex; align-items: center; justify-content: center;
 }
 
+/* Roll preview */
+.roll-preview-grid {
+  display: grid; gap: 6px; flex: 1; min-height: 0; max-height: 220px;
+}
+.roll-preview-cell {
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: unset;
+}
+
 /* Launch button */
 .launch-btn {
   height: 80px; border-radius: var(--r-lg); border: none; width: 100%;
@@ -471,6 +486,7 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 .launch-btn[data-mode="reveal"] { background: var(--reveal); }
 .launch-btn[data-mode="target"] { background: var(--target); }
 .launch-btn[data-mode="vanish"] { background: var(--vanish); }
+.launch-btn[data-mode="roll"] { background: var(--roll); }
 
 /* ═══════════════════════════════════════════════
    SHARED MODE TOP BAR

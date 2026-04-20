@@ -48,6 +48,7 @@
         <button class="mode-btn reveal-btn" id="btn-reveal" onclick="openPrelaunch('reveal')" disabled><img class="mode-btn-icon" src="assets/icons/reveal.svg" alt=""><span class="mode-btn-label">Reveal</span></button>
         <button class="mode-btn target-btn" id="btn-target" onclick="openPrelaunch('target')" disabled><img class="mode-btn-icon" src="assets/icons/target.svg" alt=""><span class="mode-btn-label">Target</span></button>
         <button class="mode-btn vanish-btn" id="btn-vanish" onclick="openPrelaunch('vanish')" disabled><img class="mode-btn-icon" src="assets/icons/vanish.svg" alt=""><span class="mode-btn-label">Vanish</span></button>
+        <button class="mode-btn roll-btn" id="btn-roll" onclick="openPrelaunch('roll')" disabled><img class="mode-btn-icon" src="assets/icons/roll.svg" alt=""><span class="mode-btn-label">Roll</span></button>
       </div>
     </div>
 
@@ -79,6 +80,10 @@
       <button class="mode-toggle-pill" id="mtoggle-vanish" onclick="switchMode('vanish')">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384C14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="var(--vanish)"/></svg>
         Vanish
+      </button>
+      <button class="mode-toggle-pill" id="mtoggle-roll" onclick="switchMode('roll')">
+        <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.66667 4C5.95942 4 5.28115 4.28095 4.78105 4.78105C4.28095 5.28115 4 5.95942 4 6.66667V25.3333C4 26.0406 4.28095 26.7189 4.78105 27.219C5.28115 27.719 5.95942 28 6.66667 28H25.3333C26.0406 28 26.7189 27.719 27.219 27.219C27.719 26.7189 28 26.0406 28 25.3333V6.66667C28 5.95942 27.719 5.28115 27.219 4.78105C26.7189 4.28095 26.0406 4 25.3333 4H6.66667ZM12 14C11.4696 14 10.9609 13.7893 10.5858 13.4142C10.2107 13.0391 10 12.5304 10 12C10 11.4696 10.2107 10.9609 10.5858 10.5858C10.9609 10.2107 11.4696 10 12 10C12.5304 10 13.0391 10.2107 13.4142 10.5858C13.7893 10.9609 14 11.4696 14 12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14ZM14 20C14 20.5304 13.7893 21.0391 13.4142 21.4142C13.0391 21.7893 12.5304 22 12 22C11.4696 22 10.9609 21.7893 10.5858 21.4142C10.2107 21.0391 10 20.5304 10 20C10 19.4696 10.2107 18.9609 10.5858 18.5858C10.9609 18.2107 11.4696 18 12 18C12.5304 18 13.0391 18.2107 21.4142 18.5858C21.7893 18.9609 22 19.4696 22 20ZM22 12C22 12.5304 21.7893 13.0391 21.4142 13.4142C21.0391 13.7893 20.5304 14 20 14C19.4696 14 18.9609 13.7893 18.5858 13.4142C18.2107 13.0391 18 12.5304 18 12C18 11.4696 18.2107 10.9609 18.5858 10.5858C18.9609 10.2107 19.4696 10 20 10C20.5304 10 21.0391 10.2107 21.4142 10.5858C21.7893 10.9609 22 11.4696 22 12Z" fill="var(--roll)"/></svg>
+        Roll
       </button>
     </div>
   </div>
@@ -222,7 +227,31 @@
           <div class="vanish-preview-grid" id="vanish-preview-grid"></div>
         </div>
       </div>
-
+      <!-- Roll settings -->
+      <div id="s-roll" class="hidden">
+        <div class="settings-row">
+          <div class="settings-block">
+            <span class="settings-label">Teams</span>
+            <div class="toggle-group">
+              <button class="toggle-pill active" id="rl-2" onclick="setRollTeams(2)">2</button>
+              <button class="toggle-pill" id="rl-3" onclick="setRollTeams(3)">3</button>
+              <button class="toggle-pill" id="rl-4" onclick="setRollTeams(4)">4</button>
+            </div>
+          </div>
+          <div class="settings-block">
+            <span class="settings-label">Grid Size</span>
+            <div class="toggle-group">
+              <button class="toggle-pill active" id="rls-4x4" onclick="setRollGrid('4x4')">4×4</button>
+              <button class="toggle-pill" id="rls-5x4" onclick="setRollGrid('5x4')">5×4</button>
+              <button class="toggle-pill" id="rls-6x4" onclick="setRollGrid('6x4')">6×4</button>
+            </div>
+          </div>
+        </div>
+        <div class="preview-area">
+          <span class="settings-label">Board Preview</span>
+          <div class="roll-preview-grid" id="roll-preview-grid"></div>
+        </div>
+      </div>
       <button class="launch-btn" id="launch-btn" data-mode="flash" onclick="launchMode()" disabled>
   <img id="launch-icon" class="mode-btn-icon" src="assets/icons/flash.svg" alt="">
   <span id="launch-label">Launch Flash</span>
