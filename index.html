@@ -384,6 +384,25 @@
 </div>
 
 <!-- ══════════════════════════════════════
+     ROLL
+══════════════════════════════════════ -->
+<div id="screen-roll" class="screen">
+  <div class="mode-topbar">
+    <button class="nav-btn" onclick="openSettings()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L5 9L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="team-btns" id="roll-team-btns"></div>
+    <button class="topbar-action" id="roll-die-btn" onclick="rollDie()" style="background:var(--roll);min-width:48px;font-size:24px;">🎲</button>
+    <button class="nav-btn" onclick="endRoll()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 3L15 15M3 15L15 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="roll-stage">
+    <div class="roll-board" id="roll-board"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
      END SHEET (shared)
 ══════════════════════════════════════ -->
 <div class="end-overlay hidden" id="end-overlay">
@@ -440,6 +459,7 @@
 <script src="js/reveal.js"></script>
 <script src="js/target.js"></script>
 <script src="js/vanish.js"></script>
+<script src="js/roll.js"></script>
 
 <!-- ══════════════════════════════════════
      EDIT CARDS MODAL
@@ -455,6 +475,62 @@
       </div>
     </div>
     <div class="edit-cards-body" id="edit-cards-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLL CARD OVERLAY
+══════════════════════════════════════ -->
+<div class="roll-overlay hidden" id="roll-card-overlay">
+  <div class="roll-card-modal">
+    <div class="roll-card-img-wrap">
+      <img id="roll-card-img" src="" alt="">
+    </div>
+    <div class="roll-card-word" id="roll-card-word"></div>
+    <button class="roll-got-it-btn" onclick="rollGotIt()">Got it!</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLL RESULT OVERLAY
+══════════════════════════════════════ -->
+<div class="roll-overlay hidden" id="roll-result-overlay">
+  <div class="roll-result-modal">
+  <div style="display:flex;gap:16px;">
+    <div class="roll-result-col">
+      <div class="roll-result-points" id="roll-result-points">100</div>
+      <div class="roll-result-sub">points</div>
+    </div>
+    <div class="roll-result-col">
+      <div id="roll-result-icon"></div>
+      <div class="roll-result-sub" id="roll-result-label">move one</div>
+    </div>
+  </div>
+  <button class="roll-got-it-btn" onclick="rollDone()" style="background:var(--roll);align-self:center;">Done</button>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLL FROZEN OVERLAY
+══════════════════════════════════════ -->
+<div class="roll-overlay hidden" id="roll-frozen-overlay">
+  <div class="roll-frozen-modal">
+    <div id="roll-frozen-icon">❄️</div>
+    <div class="roll-frozen-label">Frozen! Miss a turn.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLL END OVERLAY
+══════════════════════════════════════ -->
+<div class="roll-overlay hidden" id="roll-end-overlay">
+  <div class="roll-end-modal">
+    <div class="roll-end-title">Game Over!</div>
+    <div id="roll-end-scores"></div>
+    <div class="end-buttons">
+      <button class="end-btn" style="background:var(--roll)" onclick="document.getElementById('roll-end-overlay').classList.add('hidden');openPrelaunch('roll')">Play Again</button>
+      <button class="end-btn end-btn-secondary" onclick="document.getElementById('roll-end-overlay').classList.add('hidden');goHome()">End Game</button>
+    </div>
   </div>
 </div>
 
