@@ -272,7 +272,7 @@ function switchMode(mode) {
     el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
     S.teamCount = S.rollTeams;
     S.teamScores = Array(S.rollTeams).fill(0);
-    updateRollPreview();
+    setTimeout(() => updateRollPreview(), 50);
   }
 
   updateModeTogglePills();
@@ -340,7 +340,7 @@ function openPrelaunch(mode) {
     el.style.cssText = 'display:flex;flex-direction:column;gap:20px;flex:1;min-height:0';
     S.teamCount = S.rollTeams;
     S.teamScores = Array(S.rollTeams).fill(0);
-    updateRollPreview();
+    setTimeout(() => updateRollPreview(), 50);
   }
 
   updateModeTogglePills();
@@ -665,18 +665,24 @@ function updateRollPreview() {
   const map = {'4x4':[4,4],'5x4':[5,4],'6x4':[6,4]};
   const [cols, rows] = map[S.rollGrid] || [4,4];
   const total = cols * rows;
-  const colors = ['var(--flash)', 'var(--reveal)', 'var(--target)', 'var(--vanish)', 'var(--roll)'];
+  const colors = ['var(--reveal)', 'var(--target)', 'var(--vanish)', 'var(--roll)'];
+  
+  // Measure available height from parent
+  const parent = preview.parentElement;
+  const label = parent.querySelector('.settings-label');
+  const labelHeight = label ? label.offsetHeight + 10 : 24;
+  const availableHeight = parent.offsetHeight - labelHeight - 48; // subtract padding
+  const cellHeight = Math.floor((availableHeight - (rows - 1) * 6) / rows);
+
   preview.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   preview.innerHTML = '';
+  
   for (let i = 0; i < total; i++) {
     const cell = document.createElement('div');
     cell.className = 'roll-preview-cell';
-    if (i === 0) {
+    cell.style.height = `${cellHeight}px`;
+    if (i === 0 || i === total - 1) {
       cell.style.background = 'var(--flash)';
-      cell.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="white"><polygon points="10,2 12.9,7.6 19,8.5 14.5,12.9 15.6,19 10,16 4.4,19 5.5,12.9 1,8.5 7.1,7.6"/></svg>`;
-    } else if (i === total - 1) {
-      cell.style.background = 'var(--flash)';
-      cell.innerHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="white"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 2.5l1.5 3 3.3.5-2.4 2.3.6 3.2L10 12l-2.9 1.5.6-3.2L5.2 8l3.3-.5L10 4.5z" fill-rule="evenodd"/></svg>`;
     } else {
       cell.style.background = colors[i % colors.length];
     }

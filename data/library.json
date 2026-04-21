@@ -483,7 +483,8 @@
                 { "word": "V", "image": "V.png" },
                 { "word": "W", "image": "W.png" },
                 { "word": "X", "image": "X.png" },
-                { "word": "Y", "image": "Y.png" }
+                { "word": "Y", "image": "Y.png" },
+                { "word": "Z", "image": "Z.png" }
               ]
             }
           ]
@@ -1224,7 +1225,7 @@
       "id": "mpd-p11", "unit": "Page 11", "title": "Sports",
       "decks": [
         { "id": "mpd-p11-d1", "title": "Sports", "folder": "my-picture-dictionary/page-11/sports", "cards": [
-          { "word": "basketball", "image": "basketball.png" }, { "word": "cricket", "image": "cricket.png" }, { "word": "dodgeball", "image": "dodgeball.png" }, { "word": "gymnastics", "image": "gymnastics.png" }, { "word": "judo", "image": "judo.png" }, { "word": "kendo", "image": "kendo.png" }, { "word": "rugby", "image": "rugby.png" }, { "word": "skateboarding", "image": "skateboarding.png" }, { "word": "skiing", "image": "skiing.png" }, { "word": "soccer", "image": "soccer.png" }, { "word": "sumo", "image": "sumo.png" }, { "word": "swimming", "image": "swimming.png" }, { "word": "table tennis", "image": "table tennis.png" }, { "word": "tennis", "image": "tennis.png" }, { "word": "track and field", "image": "track and field.png" }, { "word": "volleyball", "image": "volleyball.png" }
+          { "word": "basketball", "image": "basketball.png" }, { "word": "cricket", "image": "cricket.png" }, { "word": "dodgeball", "image": "dodgeball.png" }, { "word": "gymnastics", "image": "gymnastics.png" }, { "word": "judo", "image": "judo.png" }, { "word": "kendo", "image": "kendo.png" }, { "word": "rugby", "image": "rugby.png" }, { "word": "skateboarding", "image": "skateboarding.png" }, { "word": "skiing", "image": "skiing.png" }, { "word": "soccer", "image": "soccer.png" }, { "word": "sumo", "image": "sumo.png" }, { "word": "swimming", "image": "swimming.png" }, { "word": "table tennis", "image": "table tennis.png" }, { "word": "tennis", "image": "tennis.png" }, { "word": "track and field", "image": "track and field.png" }, { "word": "volleyball", "image": "volleyball.png" }, { "word": "badminton", "image": "badminton.png" }, { "word": "baseball", "image": "baseball.png" } 
         ]},
         { "id": "mpd-p11-d2", "title": "Sports+", "folder": "my-picture-dictionary/page-11/sports-plus", "cards": [
           { "word": "boccia", "image": "boccia.png" }, { "word": "dancing", "image": "dancing.png" }, { "word": "fencing", "image": "fencing.png" }, { "word": "figure skating", "image": "figure skating.png" }, { "word": "golf", "image": "golf.png" }, { "word": "ice hockey", "image": "ice hockey.png" }, { "word": "karate", "image": "karate.png" }, { "word": "marathon", "image": "marathon.png" }, { "word": "road cycling", "image": "road cycling.png" }, { "word": "sailing", "image": "sailing.png" }, { "word": "skating", "image": "skating.png" }, { "word": "softball", "image": "softball.png" }, { "word": "surfing", "image": "surfing.png" }, { "word": "weightlifting", "image": "weightlifting.png" }, { "word": "wheelchair tennis", "image": "wheelchair tennis.png" }, { "word": "wrestling", "image": "wrestling.png" }
@@ -1448,7 +1449,7 @@
           { "word": "classroom", "image": "classroom.png" }, { "word": "computer room", "image": "computer room.png" }, { "word": "entrance", "image": "entrance.png" }, { "word": "gym", "image": "gym.png" }, { "word": "library", "image": "library.png" }, { "word": "music room", "image": "music room.png" }, { "word": "playground", "image": "playground.png" }, { "word": "restroom", "image": "restroom.png" }, { "word": "school nurse's office", "image": "school nurse's office.png" }, { "word": "school principal's office", "image": "school principal's office.png" }, { "word": "swimming pool", "image": "swimming pool.png" }, { "word": "teachers' office", "image": "teachers' office.png" }
         ]},
         { "id": "mpd-p28-d2", "title": "Subjects", "folder": "my-picture-dictionary/page-28/subjects", "cards": [
-          { "word": "arts and crafts", "image": "arts and crafts.png" }, { "word": "calligraphy", "image": "calligraphy.png" }, { "word": "English", "image": "English.png" }, { "word": "home economics", "image": "home economics.png" }, { "word": "homeroom", "image": "homeroom.png" }, { "word": "Japanese", "image": "Japanese.png" }, { "word": "math", "image": "math.png" }, { "word": "moral education", "image": "moral education.png" }, { "word": "music", "image": "music.png" }, { "word": "P.E.", "image": "P.E..png" }, { "word": "science", "image": "science.png" }, { "word": "social studies", "image": "social studies.png" }, { "word": "period for integrated  studies", "image": "period for integrated studies.png" }
+          { "word": "arts and crafts", "image": "arts and crafts.png" }, { "word": "calligraphy", "image": "calligraphy.png" }, { "word": "English", "image": "English.png" }, { "word": "home economics", "image": "home economics.png" }, { "word": "homeroom", "image": "homeroom.png" }, { "word": "Japanese", "image": "Japanese.png" }, { "word": "math", "image": "math.png" }, { "word": "moral education", "image": "moral education.png" }, { "word": "music", "image": "music.png" }, { "word": "P.E.", "image": "P.E..png" }, { "word": "science", "image": "science.png" }, { "word": "social studies", "image": "social studies.png" }, { "word": "period for integrated studies", "image": "period for integrated studies.png" }
         ]}
       ]
     },

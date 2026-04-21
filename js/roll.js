@@ -99,18 +99,39 @@ function renderRollBoard() {
 
 // ── Token rendering ───────────────────────────
 function renderAllTokens() {
-  document.querySelectorAll('.roll-cell-tokens').forEach(el => el.innerHTML = '');
+  document.querySelectorAll('.roll-cell-tokens').forEach(el => {
+    el.innerHTML = '';
+    el.style.display = 'flex';
+    el.style.flexWrap = 'wrap';
+    el.style.gap = '8px';
+    el.style.justifyContent = 'center';
+    el.style.alignItems = 'center';
+    el.style.width = '';
+  });
 
   rollPositions.forEach((pathPos, teamIdx) => {
     const gridIdx = rollSnakePath[pathPos];
     const container = document.getElementById(`roll-tokens-${gridIdx}`);
     if (!container) return;
-
     const token = document.createElement('div');
     token.className = 'roll-token';
     if (teamIdx === rollCurrentTeam) token.classList.add('roll-token-active');
     token.textContent = teamIdx + 1;
     container.appendChild(token);
+  });
+
+  document.querySelectorAll('.roll-cell-tokens').forEach(el => {
+    const count = el.children.length;
+    if (count >= 3) {
+  el.style.display = 'grid';
+  el.style.gridTemplateColumns = 'repeat(2, 80px)';
+  el.style.gap = '8px';
+  el.style.width = 'fit-content';
+  el.style.position = 'absolute';
+  el.style.top = '50%';
+  el.style.left = '50%';
+  el.style.transform = 'translate(-50%, -50%)';
+}
   });
 }
 
@@ -126,25 +147,31 @@ function updateRollActiveTeam() {
 // ── Roll die ──────────────────────────────────
 function rollDie() {
   if (rollMoving) return;
-
   const roll = Math.floor(Math.random() * 6) + 1;
-  animateDie(roll, () => animateMove(rollCurrentTeam, roll));
+  animateDie(roll);
 }
 
-function animateDie(finalValue, callback) {
-  const btn = document.getElementById('roll-die-btn');
-  if (!btn) { callback(); return; }
+function animateDie(finalValue) {
   rollMoving = true;
+  const overlay = document.getElementById('roll-die-overlay');
+  const numEl = document.getElementById('roll-die-number');
+  overlay.classList.remove('hidden');
   let count = 0;
   const interval = setInterval(() => {
-    btn.textContent = Math.floor(Math.random() * 6) + 1;
+    numEl.textContent = Math.floor(Math.random() * 6) + 1;
     count++;
-    if (count >= 10) {
+    if (count >= 15) {
       clearInterval(interval);
-      btn.textContent = finalValue;
-      setTimeout(callback, 300);
+      numEl.textContent = finalValue;
+      overlay.dataset.roll = finalValue;
     }
   }, 60);
+}
+
+function rollDieConfirm() {
+  const roll = parseInt(document.getElementById('roll-die-overlay').dataset.roll);
+  document.getElementById('roll-die-overlay').classList.add('hidden');
+  setTimeout(() => animateMove(rollCurrentTeam, roll), 400);
 }
 
 // ── Animated step-by-step movement ───────────
@@ -168,7 +195,7 @@ function animateMove(teamIdx, stepsRemaining) {
     spawnRollConfetti();
   }
 
-  setTimeout(() => animateMove(teamIdx, stepsRemaining - 1), 350);
+  setTimeout(() => animateMove(teamIdx, stepsRemaining - 1), 800);
 }
 
 // ── Card flip ─────────────────────────────────
@@ -197,9 +224,9 @@ function rollGotIt() {
 const ROLL_POINT_OPTIONS = [50, 75, 100, 125, 150, 175, 200];
 
 const ROLL_OUTCOMES = [
-  { type:'forward', label:'move one forward', icon: () => `<svg width="72" height="72" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M14 6l6 6-6 6" stroke="var(--vanish)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
-  { type:'back',    label:'move one back',    icon: () => `<svg width="72" height="72" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M10 6L4 12l6 6" stroke="var(--target)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
-  { type:'stay',    label:'stay here',        icon: () => `<svg width="72" height="72" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0v7h12V8z" fill="var(--vanish)"/><rect x="4" y="14" width="16" height="3" rx="1.5" fill="var(--vanish)"/></svg>` },
+{ type:'forward', label:'forward', icon: () => `<img src="assets/icons/move-forward.svg" style="height:240px;width:240px;">` },
+{ type:'back',    label:'back',    icon: () => `<img src="assets/icons/move-back.svg" style="height:240px;width:240px;">` },
+{ type:'stay',    label:'stay',        icon: () => `<img src="assets/icons/stay.svg" style="height:240px;width:240px;">` },
 ];
 
 const ROLL_WEIGHTS = [30, 30, 40];
@@ -253,14 +280,53 @@ function rollDone() {
   const total = rollSnakePath.length;
   if (outcome === 'forward') {
     rollPositions[teamIdx] = (rollPositions[teamIdx] + 1) % total;
+    setTimeout(() => renderAllTokens(), 400);
   } else if (outcome === 'back') {
     rollPositions[teamIdx] = (rollPositions[teamIdx] - 1 + total) % total;
+    setTimeout(() => renderAllTokens(), 400);
   }
 
-  renderAllTokens();
+  if (outcome === 'stay') {
+    // Pulse the token
+    const gridIdx = rollSnakePath[rollPositions[teamIdx]];
+    const container = document.getElementById(`roll-tokens-${gridIdx}`);
+    const token = container?.querySelector('.roll-token-active');
+    if (token) {
+      token.style.transition = 'transform 0.2s ease';
+      token.style.transform = 'scale(1.6)';
+      setTimeout(() => { token.style.transform = 'scale(1)'; }, 200);
+    }
+    setTimeout(() => {
   rollCurrentTeam = (rollCurrentTeam + 1) % S.teamCount;
   updateRollActiveTeam();
   document.getElementById('roll-die-btn').textContent = '🎲';
+  // Pulse the new active team's token
+  const newGridIdx = rollSnakePath[rollPositions[rollCurrentTeam]];
+  const newContainer = document.getElementById(`roll-tokens-${newGridIdx}`);
+  const newToken = newContainer?.querySelector('.roll-token-active');
+  if (newToken) {
+    newToken.style.transition = 'transform 0.25s ease';
+    newToken.style.transform = 'scale(1.6)';
+    setTimeout(() => { newToken.style.transform = 'scale(1)'; }, 250);
+  }
+}, 900);
+  } else {
+    // Delay before movement so token is visible
+    setTimeout(() => {
+  rollCurrentTeam = (rollCurrentTeam + 1) % S.teamCount;
+  updateRollActiveTeam();
+  document.getElementById('roll-die-btn').textContent = '🎲';
+  // Pulse the new active team's token
+  const newGridIdx = rollSnakePath[rollPositions[rollCurrentTeam]];
+  const newContainer = document.getElementById(`roll-tokens-${newGridIdx}`);
+  const newToken = newContainer?.querySelector('.roll-token-active');
+  if (newToken) {
+    newToken.style.transition = 'transform 0.25s ease';
+    newToken.style.transform = 'scale(1.6)';
+    setTimeout(() => { newToken.style.transform = 'scale(1)'; }, 250);
+  }
+}, 900);
+  }
 }
 
 // ── Frozen notice ─────────────────────────────

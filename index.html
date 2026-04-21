@@ -125,7 +125,7 @@
             </div>
           </div>
         </div>
-        <div class="preview-area">
+        <div class="preview-area" style="flex:1;min-height:0;">
           <span class="settings-label">Card Preview</span>
           <div class="card-preview">
             <div class="preview-img-wrap" id="prev-img-wrap"><img id="prev-img" src="" alt=""></div>
@@ -247,7 +247,7 @@
             </div>
           </div>
         </div>
-        <div class="preview-area">
+        <div class="preview-area" style="flex:1;min-height:0;">
           <span class="settings-label">Board Preview</span>
           <div class="roll-preview-grid" id="roll-preview-grid"></div>
         </div>
@@ -496,7 +496,7 @@
 ══════════════════════════════════════ -->
 <div class="roll-overlay hidden" id="roll-result-overlay">
   <div class="roll-result-modal">
-  <div style="display:flex;gap:16px;">
+  <div style="display:flex;gap:16px;flex:1;min-height:0;width:100%;">
     <div class="roll-result-col">
       <div class="roll-result-points" id="roll-result-points">100</div>
       <div class="roll-result-sub">points</div>
@@ -531,6 +531,14 @@
       <button class="end-btn" style="background:var(--roll)" onclick="document.getElementById('roll-end-overlay').classList.add('hidden');openPrelaunch('roll')">Play Again</button>
       <button class="end-btn end-btn-secondary" onclick="document.getElementById('roll-end-overlay').classList.add('hidden');goHome()">End Game</button>
     </div>
+  </div>
+</div>
+
+<!-- ROLL DIE MODAL -->
+<div class="roll-overlay hidden" id="roll-die-overlay">
+  <div class="roll-die-modal">
+    <div class="roll-die-number" id="roll-die-number">🎲</div>
+    <button class="roll-got-it-btn" onclick="rollDieConfirm()" style="background:var(--roll);color:white;margin-top:auto;">Move</button>
   </div>
 </div>
 
