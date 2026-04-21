@@ -99,14 +99,20 @@ function renderRollBoard() {
 
 // ── Token rendering ───────────────────────────
 function renderAllTokens() {
+  // Calculate token size based on grid cell size
+  const board = document.getElementById('roll-board');
+  const boardWidth = board ? board.offsetWidth : 400;
+  console.log('boardWidth:', boardWidth, 'cellSize:', (boardWidth - (rollCols - 1) * 12) / rollCols);
+  const cellSize = (boardWidth - (rollCols - 1) * 12) / rollCols;
+  const tokenSize = Math.min(Math.floor(cellSize * 0.35), 60);
+  const fontSize = Math.floor(tokenSize * 0.45);
+
   document.querySelectorAll('.roll-cell-tokens').forEach(el => {
     el.innerHTML = '';
-    el.style.display = 'flex';
-    el.style.flexWrap = 'wrap';
-    el.style.gap = '8px';
-    el.style.justifyContent = 'center';
-    el.style.alignItems = 'center';
-    el.style.width = '';
+    el.style.position = 'absolute';
+    el.style.top = '50%';
+    el.style.left = '50%';
+    el.style.transform = 'translate(-50%, -50%)';
   });
 
   rollPositions.forEach((pathPos, teamIdx) => {
@@ -117,21 +123,29 @@ function renderAllTokens() {
     token.className = 'roll-token';
     if (teamIdx === rollCurrentTeam) token.classList.add('roll-token-active');
     token.textContent = teamIdx + 1;
+    token.style.width = `${tokenSize}px`;
+    token.style.height = `${tokenSize}px`;
+    token.style.fontSize = `${fontSize}px`;
     container.appendChild(token);
   });
 
   document.querySelectorAll('.roll-cell-tokens').forEach(el => {
     const count = el.children.length;
-    if (count >= 3) {
-  el.style.display = 'grid';
-  el.style.gridTemplateColumns = 'repeat(2, 80px)';
-  el.style.gap = '8px';
-  el.style.width = 'fit-content';
-  el.style.position = 'absolute';
-  el.style.top = '50%';
-  el.style.left = '50%';
-  el.style.transform = 'translate(-50%, -50%)';
-}
+    if (count === 0) return;
+    const gap = 8;
+    if (count <= 2) {
+      el.style.display = 'flex';
+      el.style.flexDirection = 'row';
+      el.style.gap = `${gap}px`;
+      el.style.width = `${count * tokenSize + (count - 1) * gap}px`;
+      el.style.height = `${tokenSize}px`;
+    } else {
+      el.style.display = 'grid';
+      el.style.gridTemplateColumns = `repeat(2, ${tokenSize}px)`;
+      el.style.gap = `${gap}px`;
+      el.style.width = `${2 * tokenSize + gap}px`;
+      el.style.height = `${2 * tokenSize + gap}px`;
+    }
   });
 }
 
