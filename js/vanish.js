@@ -10,6 +10,7 @@ let vWrong = [];
 let vPhase = 'study'; // study | guessing
 let vPointTicker = null;
 let vCurrentPoints = 100;
+let vActiveTeam = 0;
 
 const V_SIZES = { '2x3':[2,3,6], '3x3':[3,3,9], '4x3':[4,3,12] };
 
@@ -22,12 +23,24 @@ const GHOST_SVG_WHITE = `<svg width="32" height="32" viewBox="0 0 20 20" fill="n
 // ══════════════════════════════════════════════
 function initVanish() {
   vRound = 0;
+  vActiveTeam = 0;
   const [,,total] = V_SIZES[S.vanishGrid];
   const unique = [...new Map(S.activeCards.map(c => [c.word.toLowerCase(), c])).values()];
   vPoolCards = shuffle(unique).slice(0, total);
   showScreen('screen-vanish');
   buildTeamBtns('vanish-team-btns', vanishTeamGuess);
+  updateVanishActiveTeam();
   startVanishRound();
+}
+
+// ── Active team highlight ─────────────────────
+function updateVanishActiveTeam() {
+  if (S.teamCount === 0) return;
+  for (let i = 0; i < S.teamCount; i++) {
+    const btn = document.getElementById(`vanish-team-btns-t${i}`);
+    if (!btn) continue;
+    btn.style.borderColor = i === vActiveTeam ? 'var(--vanish)' : 'var(--stroke-default)';
+  }
 }
 
 function startVanishRound() {
@@ -185,6 +198,7 @@ function openGuessModal() {
 }
 
 function vanishTeamGuess(teamIdx) {
+  if (vPhase !== 'guessing') return;
   window._vanishGuessingTeam = teamIdx;
   stopPointTicker();
   openGuessModal();
@@ -207,13 +221,19 @@ function submitGuess() {
     renderVanishGrid(true);
 
     if (S.teamCount > 0 && window._vanishGuessingTeam !== undefined) {
-      S.teamScores[window._vanishGuessingTeam] += vCurrentPoints;
+      // Full points for active team, half for steal
+      const isSteal = window._vanishGuessingTeam !== vActiveTeam;
+      const points = isSteal ? Math.floor(vCurrentPoints / 2) : vCurrentPoints;
+      S.teamScores[window._vanishGuessingTeam] += points;
       updateTeamScore('vanish-team-btns', window._vanishGuessingTeam);
       const btn = document.getElementById(`vanish-team-btns-t${window._vanishGuessingTeam}`);
       if (btn) {
         btn.classList.add('correct-vanish');
         setTimeout(() => btn.classList.remove('correct-vanish'), 1500);
       }
+      // Advance active team
+      vActiveTeam = (vActiveTeam + 1) % S.teamCount;
+      updateVanishActiveTeam();
     }
 
     const allFound = vGhostIdxs.every(i => vFoundIdxs.includes(i));
@@ -226,10 +246,10 @@ function submitGuess() {
           showEndSheet('All done!', 'Play Again', 'var(--vanish)');
         } else {
           document.getElementById('target-end-title').textContent = `Round ${vRound + 1} finished!`;
-          const btn = document.getElementById('target-end-primary');
-          btn.textContent = 'Next Round';
-          btn.style.background = 'var(--vanish)';
-          btn.onclick = () => {
+          const endBtn = document.getElementById('target-end-primary');
+          endBtn.textContent = 'Next Round';
+          endBtn.style.background = 'var(--vanish)';
+          endBtn.onclick = () => {
             document.getElementById('target-end-overlay').classList.add('hidden');
             vRound++;
             startVanishRound();
@@ -273,7 +293,6 @@ function showMeVanish() {
   if (!cell) return;
 
   const card = vGridCards[idx];
-
   cell.style.opacity = '0';
   setTimeout(() => {
     cell.style.background = 'var(--surface-card)';

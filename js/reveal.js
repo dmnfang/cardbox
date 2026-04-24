@@ -9,6 +9,7 @@ let revDone = false;
 let revTotal = 0;
 let revGone = 0;
 let revWrong = [];
+let revActiveTeam = 0;
 
 const REV_SPEED = { 1: 1400, 2: 800, 3: 500 };
 const SQ_COLORS = ['var(--flash)', 'var(--reveal)', 'var(--target)', 'var(--vanish)'];
@@ -19,13 +20,25 @@ const GRID_ROWS = { '4x4':4, '6x4':4, '8x4':4, '10x4':4 };
 function initReveal() {
   revCards = shuffle([...S.activeCards]);
   revIdx = 0;
+  revActiveTeam = 0;
   showScreen('screen-reveal');
   buildTeamBtns('reveal-team-btns', revealTeamGuess);
   const pauseBtn = document.getElementById('reveal-pause-btn');
   if (pauseBtn) pauseBtn.style.display = S.teamCount > 0 ? 'none' : 'flex';
   window.removeEventListener('resize', fitRevealGrid);
   window.addEventListener('resize', fitRevealGrid);
+  updateRevealActiveTeam();
   renderReveal();
+}
+
+// ── Active team highlight ─────────────────────
+function updateRevealActiveTeam() {
+  if (S.teamCount === 0) return;
+  for (let i = 0; i < S.teamCount; i++) {
+    const btn = document.getElementById(`reveal-team-btns-t${i}`);
+    if (!btn) continue;
+    btn.style.borderColor = i === revActiveTeam ? 'var(--reveal)' : 'var(--stroke-default)';
+  }
 }
 
 // ── Render card ───────────────────────────────
@@ -87,7 +100,6 @@ function buildSquares() {
       img.onload = fitRevealGrid;
     }
   } else {
-    // Word mode — cover full card
     container.style.cssText = `
       position: absolute;
       inset: 24px;
@@ -190,7 +202,7 @@ function revealNext() {
   else showEndSheet('All done!', 'Play Again', 'var(--reveal)');
 }
 
-// ── Pause ─────────────────────────────────────
+// ── Pause (no teams mode) ─────────────────────
 function toggleRevealPause() {
   if (S.teamCount > 0) return;
   if (!revPaused) {
@@ -235,18 +247,26 @@ function submitRevealGuess(teamIdx) {
     input.value = '';
     revWrong = [];
     closeGuessModal();
+
+    // Full points for active team, half for steal
     const remaining = document.querySelectorAll('.reveal-sq:not(.gone)').length;
-    const points = Math.max(10, remaining * 10);
-    const team = window._revealGuessingTeam;
-    if (team !== undefined && S.teamCount > 0) {
-      S.teamScores[team] += points;
-      updateTeamScore('reveal-team-btns', team);
-      const btn = document.getElementById(`reveal-team-btns-t${team}`);
+    const basePoints = Math.max(10, remaining * 10);
+    const isSteal = S.teamCount > 0 && teamIdx !== revActiveTeam;
+    const points = isSteal ? Math.floor(basePoints / 2) : basePoints;
+
+    if (teamIdx !== undefined && S.teamCount > 0) {
+      S.teamScores[teamIdx] += points;
+      updateTeamScore('reveal-team-btns', teamIdx);
+      const btn = document.getElementById(`reveal-team-btns-t${teamIdx}`);
       if (btn) {
         btn.classList.add('correct-reveal');
         setTimeout(() => btn.classList.remove('correct-reveal'), 1500);
       }
+      // Advance to next team
+      revActiveTeam = (revActiveTeam + 1) % S.teamCount;
+      updateRevealActiveTeam();
     }
+
     revealAction();
     spawnRevealConfetti();
     revPaused = false;
@@ -286,7 +306,7 @@ function spawnRevealConfetti() {
   setTimeout(() => container.remove(), 2000);
 }
 
-// ── Team guess ────────────────────────────────
+// ── Team button tap ───────────────────────────
 function revealTeamGuess(teamIdx) {
   stopRevTimer();
   revPaused = true;
