@@ -8,12 +8,14 @@ let revPaused = false;
 let revDone = false;
 let revTotal = 0;
 let revGone = 0;
+let revWrong = [];
 
 const REV_SPEED = { 1: 1400, 2: 800, 3: 500 };
 const SQ_COLORS = ['var(--flash)', 'var(--reveal)', 'var(--target)', 'var(--vanish)'];
 const GRID_COLS = { '4x4':4, '6x4':6, '8x4':8, '10x4':10 };
 const GRID_ROWS = { '4x4':4, '6x4':4, '8x4':4, '10x4':4 };
 
+// ── Init ──────────────────────────────────────
 function initReveal() {
   revCards = shuffle([...S.activeCards]);
   revIdx = 0;
@@ -21,9 +23,12 @@ function initReveal() {
   buildTeamBtns('reveal-team-btns', revealTeamGuess);
   const pauseBtn = document.getElementById('reveal-pause-btn');
   if (pauseBtn) pauseBtn.style.display = S.teamCount > 0 ? 'none' : 'flex';
+  window.removeEventListener('resize', fitRevealGrid);
+  window.addEventListener('resize', fitRevealGrid);
   renderReveal();
 }
 
+// ── Render card ───────────────────────────────
 function renderReveal() {
   revWrong = [];
   stopRevTimer();
@@ -50,24 +55,22 @@ function renderReveal() {
   }
 
   // Reset card border
-  const rc = document.getElementById('reveal-card');
-  rc.classList.remove('revealed');
+  document.getElementById('reveal-card').classList.remove('revealed');
 
-  // Squares
   buildSquares();
   setRevActionBtn('eye');
   setPauseBtn(false);
   startRevTimer();
 }
 
+// ── Build squares ─────────────────────────────
 function buildSquares() {
   const cols = GRID_COLS[S.revealGrid] || 4;
   const rows = GRID_ROWS[S.revealGrid] || 4;
   revTotal = cols * rows;
   const container = document.getElementById('reveal-squares');
-  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  container.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
   container.innerHTML = '';
+
   for (let i = 0; i < revTotal; i++) {
     const sq = document.createElement('div');
     sq.className = 'reveal-sq';
@@ -75,8 +78,66 @@ function buildSquares() {
     sq.onclick = () => removeSquare(sq);
     container.appendChild(sq);
   }
+
+  if (S.revealContent === 'image') {
+    const img = document.querySelector('#reveal-content img');
+    if (img && img.complete && img.naturalWidth) {
+      fitRevealGrid();
+    } else if (img) {
+      img.onload = fitRevealGrid;
+    }
+  } else {
+    // Word mode — cover full card
+    container.style.cssText = `
+      position: absolute;
+      inset: 24px;
+      display: grid;
+      grid-template-columns: repeat(${cols}, 1fr);
+      grid-template-rows: repeat(${rows}, 1fr);
+      border-radius: calc(var(--r-lg) - 8px);
+      overflow: hidden;
+    `;
+  }
 }
 
+// ── Fit grid to image bounds ──────────────────
+function fitRevealGrid() {
+  if (S.revealContent !== 'image') return;
+  const img = document.querySelector('#reveal-content img');
+  const container = document.getElementById('reveal-squares');
+  const card = document.getElementById('reveal-card');
+  if (!img || !img.naturalWidth || !container || !card) return;
+
+  const cols = GRID_COLS[S.revealGrid] || 4;
+  const rows = GRID_ROWS[S.revealGrid] || 4;
+  const padding = 24;
+  const cardRect = card.getBoundingClientRect();
+  const cw = cardRect.width - padding * 2;
+  const ch = cardRect.height - padding * 2;
+  const nw = img.naturalWidth;
+  const nh = img.naturalHeight;
+
+  const scale = Math.min(cw / nw, ch / nh);
+  const renderedW = nw * scale;
+  const renderedH = nh * scale;
+  const offsetX = padding + (cw - renderedW) / 2;
+  const offsetY = padding + (ch - renderedH) / 2;
+
+  container.style.cssText = `
+    position: absolute;
+    left: ${offsetX}px;
+    top: ${offsetY}px;
+    width: ${renderedW}px;
+    height: ${renderedH}px;
+    display: grid;
+    grid-template-columns: repeat(${cols}, 1fr);
+    grid-template-rows: repeat(${rows}, 1fr);
+    border-radius: calc(var(--r-lg) - 8px);
+    overflow: hidden;
+  `;
+}
+
+// ── Timer ─────────────────────────────────────
 function startRevTimer() {
   if (revPaused || revDone) return;
   revTimer = setInterval(removeRandomSq, REV_SPEED[S.revealSpeed] || 2000);
@@ -103,6 +164,7 @@ function onAllRevealed() {
   setRevActionBtn('next');
 }
 
+// ── Action button ─────────────────────────────
 function setRevActionBtn(type) {
   const btn = document.getElementById('reveal-action-btn');
   if (type === 'eye') {
@@ -128,6 +190,7 @@ function revealNext() {
   else showEndSheet('All done!', 'Play Again', 'var(--reveal)');
 }
 
+// ── Pause ─────────────────────────────────────
 function toggleRevealPause() {
   if (S.teamCount > 0) return;
   if (!revPaused) {
@@ -150,8 +213,7 @@ function setPauseBtn(paused) {
     : `<rect x="4" y="3" width="3" height="12" rx="1" fill="currentColor"/><rect x="11" y="3" width="3" height="12" rx="1" fill="currentColor"/>`;
 }
 
-let revWrong = [];
-
+// ── Guess modal ───────────────────────────────
 function openRevealGuessModal() {
   document.getElementById('guess-input').value = '';
   document.getElementById('guess-submit').style.background = 'var(--reveal)';
@@ -159,10 +221,6 @@ function openRevealGuessModal() {
   renderRevealWrongChips();
   document.getElementById('guess-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('guess-input').focus(), 80);
-}
-
-function closeRevealGuessModal() {
-  document.getElementById('guess-modal').classList.add('hidden');
 }
 
 function submitRevealGuess(teamIdx) {
@@ -177,14 +235,12 @@ function submitRevealGuess(teamIdx) {
     input.value = '';
     revWrong = [];
     closeGuessModal();
-    // Award points based on tiles remaining
     const remaining = document.querySelectorAll('.reveal-sq:not(.gone)').length;
     const points = Math.max(10, remaining * 10);
     const team = window._revealGuessingTeam;
     if (team !== undefined && S.teamCount > 0) {
       S.teamScores[team] += points;
       updateTeamScore('reveal-team-btns', team);
-      // Highlight team button
       const btn = document.getElementById(`reveal-team-btns-t${team}`);
       if (btn) {
         btn.classList.add('correct-reveal');
@@ -193,7 +249,6 @@ function submitRevealGuess(teamIdx) {
     }
     revealAction();
     spawnRevealConfetti();
-    // Auto resume
     revPaused = false;
     startRevTimer();
   } else {
@@ -216,6 +271,7 @@ function renderRevealWrongChips() {
   });
 }
 
+// ── Confetti ──────────────────────────────────
 function spawnRevealConfetti() {
   const colors = ['var(--flash)','var(--reveal)','var(--target)','var(--vanish)'];
   const container = document.createElement('div');
@@ -230,9 +286,10 @@ function spawnRevealConfetti() {
   setTimeout(() => container.remove(), 2000);
 }
 
+// ── Team guess ────────────────────────────────
 function revealTeamGuess(teamIdx) {
   stopRevTimer();
   revPaused = true;
-  openRevealGuessModal();
   window._revealGuessingTeam = teamIdx;
+  openRevealGuessModal();
 }

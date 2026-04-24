@@ -571,7 +571,7 @@ img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
 }
 
 .reveal-squares {
-  position: absolute; inset: 24px; display: grid;
+  position: absolute; display: grid;
   border-radius: calc(var(--r-lg) - 8px); overflow: hidden;
 }
 .reveal-sq {
