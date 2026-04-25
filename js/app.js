@@ -834,3 +834,22 @@ function updateTeamScore(containerId, teamIdx) {
   const btn = document.getElementById(`${containerId}-t${teamIdx}`);
   if (btn) btn.querySelector('span').textContent = S.teamScores[teamIdx];
 }
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  const isFullscreen = !!document.fullscreenElement;
+  const expandIcon = `<path d="M3 7V3h4M11 3h4v4M15 11v4h-4M7 15H3v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const compressIcon = `<path d="M7 3v4H3M15 7h-4V3M11 15v-4h4M3 11h4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const icon = isFullscreen ? compressIcon : expandIcon;
+  ['fullscreen-icon','fullscreen-icon-pre'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = icon;
+  });
+});
