@@ -17,6 +17,7 @@ const S = {
   targetWords: [],
   vanishGrid: '2x3',
   vanishRounds: 1,
+  vanishShowText: true,
   activeCards: [],
   rollTeams: 2,
   rollGrid: '4x4',
@@ -701,24 +702,40 @@ function setTeams(n, prefix) {
 function updateVanishPreview() {
   const preview = document.getElementById('vanish-preview-grid');
   if (!preview) return;
-  const map = {'2x3':[2,3],'3x3':[3,3],'4x3':[4,3]};
-  const [cols, rows] = map[S.vanishGrid] || [2,3];
-  const total = cols * rows;
+  const total = getAllCards().length;
+  const [cols, rows] = autoVanishGrid(total);
   preview.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   preview.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
   preview.innerHTML = '';
-  const ghostIdx = Math.floor(Math.random() * total);
-  const cards = getAllCards().slice(0, total);
-  for (let i = 0; i < total; i++) {
+  const ghostIdx = Math.floor(Math.random() * (cols * rows));
+  const cards = getAllCards().slice(0, cols * rows);
+  for (let i = 0; i < cols * rows; i++) {
     const cell = document.createElement('div');
     cell.className = 'vanish-pcell' + (i === ghostIdx ? ' ghost' : '');
     if (i === ghostIdx) {
-      cell.innerHTML = `<svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384 14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`;
+      cell.innerHTML = `<svg width="24" height="24" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66663C11.9891 1.66663 13.8968 2.4568 15.3033 3.86332C16.7098 5.26985 17.5 7.1775 17.5 9.16663V16.35C17.5 17.875 15.8617 18.8391 14.5292 18.0991L14.2267 17.9366C13.3933 17.51 12.74 17.37 11.8192 17.8416L11.6542 17.9316C11.1792 18.2029 10.6448 18.3532 10.0981 18.3692C9.55139 18.3852 9.00913 18.2664 8.51917 18.0233L8.34583 17.9316C7.28167 17.3233 6.54083 17.505 5.47083 18.0983C4.1375 18.84 2.5 17.8758 2.5 16.3508V9.16663C2.5 7.1775 3.29018 5.26985 4.6967 3.86332C6.10322 2.4568 8.01088 1.66663 10 1.66663ZM7.08333 7.49996C6.75181 7.49996 6.43387 7.63166 6.19945 7.86608C5.96503 8.1005 5.83333 8.41844 5.83333 8.74996C5.83333 9.08148 5.96503 9.39942 6.19945 9.63384C6.43387 9.86826 6.75181 9.99996 7.08333 9.99996C7.41485 9.99996 7.7328 9.86826 7.96722 9.63384C8.20164 9.39942 8.33333 9.08148 8.33333 8.74996C8.33333 8.41844 8.20164 8.1005 7.96722 7.86608C7.7328 7.63166 7.41485 7.49996 7.08333 7.49996ZM12.9167 7.49996C12.5851 7.49996 12.2672 7.63166 12.0328 7.86608C11.7984 8.1005 11.6667 8.41844 11.6667 8.74996C11.6667 9.08148 11.7984 9.39942 12.0328 9.63384C12.2672 9.86826 12.5851 9.99996 12.9167 9.99996C13.2482 9.99996 13.5661 9.86826 13.8005 9.63384C14.035 9.39942 14.1667 9.08148 14.1667 8.74996C14.1667 8.41844 14.035 8.1005 13.8005 7.86608C13.5661 7.63166 13.2482 7.49996 12.9167 7.49996Z" fill="currentColor"/></svg>`;
     } else {
-      cell.textContent = cards[i]?.word || '';
+      if (S.vanishShowText) cell.textContent = cards[i]?.word || '';
     }
     preview.appendChild(cell);
   }
+}
+
+function autoVanishGrid(cardCount) {
+  const sizes = [
+    [2,2,4],[2,3,6],[3,3,9],[4,3,12],[4,4,16],[5,4,20],[5,5,25],[6,5,30],[6,6,36]
+  ];
+  for (const [cols, rows, total] of sizes) {
+    if (cardCount <= total) return [cols, rows];
+  }
+  return [6,6]; // fallback
+}
+
+function setVanishShowText(on) {
+  S.vanishShowText = on;
+  document.getElementById('vt-on').classList.toggle('active', on);
+  document.getElementById('vt-off').classList.toggle('active', !on);
+  updateVanishPreview();
 }
 
 function updateLaunchBtn() {

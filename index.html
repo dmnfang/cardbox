@@ -197,42 +197,41 @@
 </div>
 
       <!-- Vanish settings -->
-      <div id="s-vanish" class="hidden">
-        <div class="settings-row">
-          <div class="settings-block">
-            <span class="settings-label">Grid Size</span>
-            <div class="toggle-group">
-              <button class="toggle-pill active" id="vg-2x3" onclick="setVanishGrid('2x3')">2×3</button>
-              <button class="toggle-pill"        id="vg-3x3" onclick="setVanishGrid('3x3')">3×3</button>
-              <button class="toggle-pill"        id="vg-4x3" onclick="setVanishGrid('4x3')">4×3</button>
-            </div>
-          </div>
-          <div class="settings-block">
-            <span class="settings-label">Rounds</span>
-            <div class="toggle-group">
-              <button class="toggle-pill active" id="vr-1" onclick="setVanishRounds(1)">1</button>
-              <button class="toggle-pill"        id="vr-2" onclick="setVanishRounds(2)">2</button>
-              <button class="toggle-pill"        id="vr-3" onclick="setVanishRounds(3)">3</button>
-              <button class="toggle-pill"        id="vr-4" onclick="setVanishRounds(4)">4</button>
-              <button class="toggle-pill"        id="vr-5" onclick="setVanishRounds(5)">5</button>
-            </div>
-          </div>
-          <div class="settings-block">
-            <span class="settings-label">Teams</span>
-            <div class="toggle-group">
-              <button class="toggle-pill active" id="vn-0" onclick="setTeams(0,'vn')">Off</button>
-              <button class="toggle-pill" id="vn-2" onclick="setTeams(2,'vn')">2</button>
-              <button class="toggle-pill" id="vn-3" onclick="setTeams(3,'vn')">3</button>
-              <button class="toggle-pill" id="vn-4" onclick="setTeams(4,'vn')">4</button>
-          </div>
-</div>
-        </div>
-        <div style="font-size:16px;font-weight:400;color:var(--text-secondary);flex-shrink:0;">The number of vanished cards goes up by one every round.</div>
-        <div class="preview-area" style="margin-top:8px">
-          <span class="settings-label">Grid Preview</span>
-          <div class="vanish-preview-grid" id="vanish-preview-grid"></div>
-        </div>
+<div id="s-vanish" class="hidden">
+  <div class="settings-row">
+    <div class="settings-block">
+      <span class="settings-label">Rounds</span>
+      <div class="toggle-group">
+        <button class="toggle-pill active" id="vr-1" onclick="setVanishRounds(1)">1</button>
+        <button class="toggle-pill" id="vr-2" onclick="setVanishRounds(2)">2</button>
+        <button class="toggle-pill" id="vr-3" onclick="setVanishRounds(3)">3</button>
+        <button class="toggle-pill" id="vr-4" onclick="setVanishRounds(4)">4</button>
+        <button class="toggle-pill" id="vr-5" onclick="setVanishRounds(5)">5</button>
       </div>
+    </div>
+    <div class="settings-block">
+      <span class="settings-label">Teams</span>
+      <div class="toggle-group">
+        <button class="toggle-pill active" id="vn-0" onclick="setTeams(0,'vn')">Off</button>
+        <button class="toggle-pill" id="vn-2" onclick="setTeams(2,'vn')">2</button>
+        <button class="toggle-pill" id="vn-3" onclick="setTeams(3,'vn')">3</button>
+        <button class="toggle-pill" id="vn-4" onclick="setTeams(4,'vn')">4</button>
+      </div>
+    </div>
+    <div class="settings-block">
+      <span class="settings-label">Card Text</span>
+      <div class="toggle-group">
+        <button class="toggle-pill active" id="vt-on" onclick="setVanishShowText(true)">On</button>
+        <button class="toggle-pill" id="vt-off" onclick="setVanishShowText(false)">Off</button>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:16px;font-weight:400;color:var(--text-secondary);flex-shrink:0;">The number of vanished cards goes up by one every round. Grid size is set automatically.</div>
+  <div class="preview-area" style="margin-top:8px">
+    <span class="settings-label">Grid Preview</span>
+    <div class="vanish-preview-grid" id="vanish-preview-grid"></div>
+  </div>
+</div>
       <!-- Roll settings -->
       <div id="s-roll" class="hidden">
         <div class="settings-row">
